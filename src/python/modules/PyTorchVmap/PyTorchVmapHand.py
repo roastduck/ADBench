@@ -84,12 +84,29 @@ class PyTorchVmapHand(ITest):
         '''Calculates objective function jacobian many times.'''
 
         for i in range(times):
-            if not self.complicated:
-                self.objective, self.jacobian = torch_jacobian(
-                    self.objective_function, (self.inputs, ), self.params,
-                    False)
+            self.objective, J = torch_jacobian(
+                self.objective_function, (self.inputs, ), self.params, False)
+
+            if self.complicated:
+                # getting us part of jacobian
+                # Note: jacobian has the following structure:
+                #
+                #   [us_part theta_part]
+                #
+                # where in us part is a block diagonal matrix with blocks of
+                # size [3, 2]
+                n_rows, n_cols = J.shape
+                us_J = torch.empty([n_rows, 2])
+                for i in range(n_rows // 3):
+                    for k in range(3):
+                        us_J[3 * i + k] = J[3 * i + k][2 * i:2 * i + 2]
+
+                us_count = 2 * n_rows // 3
+                theta_count = n_cols - us_count
+                theta_J = torch.empty([n_rows, theta_count])
+                for i in range(n_rows):
+                    theta_J[i] = J[i][us_count:]
+
+                self.jacobian = torch.cat((us_J, theta_J), 1)
             else:
-                self.objective, self.jacobian = hand_objective_complicated_d(
-                    self.inputs,
-                    *self.params,
-                )
+                self.jacobian = J
