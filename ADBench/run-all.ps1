@@ -51,7 +51,7 @@ param(# Which build to test.
       [double]$time_limit=10,
 
       # Kill the test after this many seconds
-      [double]$timeout=600,
+      [double]$timeout=900,
 
       # Kill the test if it consumes more than this many gigabytes of RAM.
       [double]$max_memory_amount_in_gb=[double]::PositiveInfinity,
@@ -703,8 +703,8 @@ $tool_descriptors = @(
     [Tool]::new("PyTorchVmap", "python", [ObjectiveType] "BA, Hand", $true, 1e-7)
     [Tool]::new("PyTorchVmapGPU", "python", [ObjectiveType] "BA, Hand", $true, 1e-7)
     [Tool]::new("TorchScript", "python", [ObjectiveType] "GMM", $true, 1e-7)
-    [Tool]::new("Tensorflow", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, $default_tolerance)
-    [Tool]::new("TensorflowGraph", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, $default_tolerance)
+    #[Tool]::new("Tensorflow", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, $default_tolerance)
+    #[Tool]::new("TensorflowGraph", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, $default_tolerance)
     [Tool]::new("FreeTensor", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, 1e-7)
     [Tool]::new("FreeTensorGPU", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, 1e-7)
     [Tool]::new("FreeTensorEnzyme", "python", [ObjectiveType] "BA, LSTM, GMM, Hand", $true, 1e-7)

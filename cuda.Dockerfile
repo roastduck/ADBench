@@ -91,6 +91,8 @@ COPY . .
 # Setting workdir for building the project
 WORKDIR /adb/build
 
+# Turn off .NET telemetry
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 # For matplotlib font issue
 ENV MPLLOCALFREETYPE=1
 # Configure and build
