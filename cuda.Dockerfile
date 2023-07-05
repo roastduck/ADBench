@@ -1,5 +1,5 @@
 # PyTorch version (torch==2.0.0) shoud be consistent with **/requirements-cuda.txt
-FROM freetensor:cuda-mkl-pytorch-dev-626282f99468c9a88578bbb6a8eeffc4270aa44f
+FROM freetensor:cuda-mkl-pytorch-dev-d0664dc9ef0c764bd12fce6694d8749c2de1584e
 
 # Install linux packages
 RUN apt-get update
@@ -76,9 +76,6 @@ COPY . .
 # Setting workdir for building the project
 WORKDIR /adb/build
 
-# Configure FreeTensor
-ENV FT_BACKEND_COMPILER_CXX=/utils/clang/clang+llvm-16.0.0-x86_64-linux-gnu-ubuntu-18.04/bin/clang++
-ENV FT_BACKEND_OPENMP=/utils/clang/clang+llvm-16.0.0-x86_64-linux-gnu-ubuntu-18.04/lib/libomp.so
 # Turn off .NET telemetry
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 # For matplotlib font issue

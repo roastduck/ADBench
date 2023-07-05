@@ -40,12 +40,21 @@ class FreeTensorGMM(ITest):
             wishart_m: ft.Var[(), "int32"]
             return gmm_objective_inline(alphas, means, icf, x, wishart_gamma, wishart_m)
 
+        def schedule(s, target):
+            s.auto_use_lib(target)
+            s.auto_fission_fuse(target)
+            s.auto_reorder(target)
+            s.auto_parallelize(target)
+            s.auto_set_mem_type(target)
+            s.auto_unroll(target)
+
         self.comp_objective = ft.optimize(
-                gmm_objective,
-                schedule_callback=lambda s: s.auto_schedule(ft.CPU()))
+            gmm_objective,
+            schedule_callback=lambda s: schedule(s, ft.CPU()))
         self.comp_jacobian = ft_jacobian(
-                gmm_objective, len(self.inputs),
-                schedule_callback=lambda s: s.auto_schedule(ft.CPU()))
+            gmm_objective,
+            len(self.inputs),
+            schedule_callback=lambda s: schedule(s, ft.CPU()))
 
     def output(self):
         '''Returns calculation result.'''

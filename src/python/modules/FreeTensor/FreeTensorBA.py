@@ -24,7 +24,15 @@ class FreeTensorBA(ITest):
         self.obs = to_ft_tensor(input.obs, dtype = 'int64')
         self.feats = to_ft_tensor(input.feats)
 
-        @ft.optimize(schedule_callback=lambda s: s.auto_schedule(ft.CPU()))
+        def schedule(s, target):
+            s.auto_use_lib(target)
+            s.auto_fission_fuse(target)
+            s.auto_reorder(target)
+            s.auto_parallelize(target)
+            s.auto_set_mem_type(target)
+            s.auto_unroll(target)
+
+        @ft.optimize(schedule_callback=lambda s: schedule(s, ft.CPU()))
         def comp_objective(
                 p: ft.JIT[int],
                 n: ft.JIT[int],
@@ -44,7 +52,7 @@ class FreeTensorBA(ITest):
                 w_err[j] = compute_w_err(w[j])
             return reproj_error, w_err
 
-        @ft.optimize(schedule_callback=lambda s: s.auto_schedule(ft.CPU()))
+        @ft.optimize(schedule_callback=lambda s: schedule(s, ft.CPU()))
         def comp_jacobian(
                 p: ft.JIT[int],
                 n: ft.JIT[int],

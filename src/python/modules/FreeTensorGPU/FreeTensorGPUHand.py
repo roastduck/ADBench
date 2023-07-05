@@ -142,16 +142,24 @@ class FreeTensorGPUHand(ITest):
                         points,
                         correspondences)
 
+            def schedule(s, target):
+                s.auto_use_lib(target)
+                s.auto_fission_fuse(target)
+                s.auto_reorder(target)
+                s.auto_parallelize(target)
+                s.auto_set_mem_type(target)
+                s.auto_unroll(target)
+
             self.comp_objective = ft.optimize(
                     comp_objective,
-                    schedule_callback=lambda s: s.auto_schedule(self.device))
+                    schedule_callback=lambda s: schedule(s, self.device))
             self.comp_jacobian = ft_jacobian(
                     comp_objective, 1, False,
-                    schedule_callback=lambda s: s.auto_schedule(self.device))
+                    schedule_callback=lambda s: schedule(s, self.device))
 
             if self.complicated:
 
-                @ft.optimize(schedule_callback=lambda s: s.auto_schedule(self.device))
+                @ft.optimize(schedule_callback=lambda s: schedule(s, self.device))
                 def post_jacobian(n_rows: ft.JIT[int], n_cols: ft.JIT[int], J):
                     J: ft.Var[(n_rows, n_cols), "float64"]
 
