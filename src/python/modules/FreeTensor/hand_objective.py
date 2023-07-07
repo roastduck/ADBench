@@ -127,23 +127,11 @@ def get_skinned_vertex_positions(
     mirror_factor
 ):
     relatives = get_posed_relatives(pose_params, base_relatives)
-
     absolutes = relatives_to_absolutes(relatives, parents)
-
-    transforms = ft.empty((absolutes.shape(0), 4, 4), "float64")
-    for i in range(absolutes.shape(0)):
-        transforms[i] = absolutes[i] @ inverse_base_absolutes[i]
-
-    positions0 = ft.empty((transforms.shape(0), 4, base_positions.shape(0)), "float64")
-    for i in range(transforms.shape(0)):
-        positions0[i] = transforms[i, :, :] @ ft.transpose(base_positions, (1, 0))
-
-    positions1 = ft.transpose(positions0, (2, 0, 1))
-
+    transforms = ft.einsum("bik,bkj->bij", absolutes, inverse_base_absolutes)
+    positions1 = ft.einsum("ijk,pk->pij", transforms, base_positions)
     positions2 = ft.reduce_sum(positions1 * ft.unsqueeze(weights, [-1]), [1], keepdims=False)[:, :3]
-
     positions3 = apply_global_transform(pose_params, positions2)
-
     return positions3
 
 
