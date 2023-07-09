@@ -24,7 +24,7 @@ def log_gamma_distrib(a, p):
 
 
 def sqsum(x):
-    return sum(x ** 2)
+    return sum(x**2)
 
 
 def log_wishart_prior(p, wishart_gamma, wishart_m, sum_qs, Qdiags, icf):
@@ -33,29 +33,18 @@ def log_wishart_prior(p, wishart_gamma, wishart_m, sum_qs, Qdiags, icf):
 
     out = torch.sum(
         0.5 * wishart_gamma * wishart_gamma *
-        (torch.sum(Qdiags ** 2, dim = 1) + torch.sum(icf[:,p:] ** 2, dim = 1)) -
-        wishart_m * sum_qs
-    )
+        (torch.sum(Qdiags**2, dim=1) + torch.sum(icf[:, p:]**2, dim=1)) -
+        wishart_m * sum_qs)
 
     C = n * p * (math.log(wishart_gamma / math.sqrt(2)))
     return out - k * (C - log_gamma_distrib(0.5 * n, p))
 
 
-def constructL(d, icf):
-    constructL.Lparamidx = d
-
-    def make_L_col(i):
-        nelems = d - i - 1
-        col = torch.cat([
-            torch.zeros(i + 1, dtype = torch.float64, device=icf.device),
-            icf[constructL.Lparamidx:(constructL.Lparamidx + nelems)]
-        ])
-
-        constructL.Lparamidx += nelems
-        return col
-
-    columns = [make_L_col(i) for i in range(d)]
-    return torch.stack(columns, -1)
+def constructL(d, icf: torch.Tensor):
+    i, j = torch.triu_indices(d, d, 1, device=icf.device)
+    result = torch.zeros((icf.shape[0], d, d), dtype=icf.dtype, device=icf.device)
+    result[:, j, i] = icf[:, d:]
+    return result
 
 
 def Qtimesx(Qdiag, L, x):
@@ -70,11 +59,11 @@ def gmm_objective(alphas, means, icf, x, wishart_gamma, wishart_m):
 
     Qdiags = torch.exp(icf[:, :d])
     sum_qs = torch.sum(icf[:, :d], 1)
-    Ls = torch.stack([constructL(d, curr_icf) for curr_icf in icf])
+    Ls = constructL(d, icf)
 
-    xcentered = torch.stack(tuple( x[i] - means for i in range(n) ))
+    xcentered = x.unsqueeze(1) - means
     Lxcentered = Qtimesx(Qdiags, Ls, xcentered)
-    sqsum_Lxcentered = torch.sum(Lxcentered ** 2, 2)
+    sqsum_Lxcentered = torch.sum(Lxcentered**2, 2)
     inner_term = alphas + sum_qs - 0.5 * sqsum_Lxcentered
     lse = logsumexpvec(inner_term)
     slse = torch.sum(lse)
