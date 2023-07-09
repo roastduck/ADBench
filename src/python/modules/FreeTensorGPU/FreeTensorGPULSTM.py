@@ -43,13 +43,21 @@ class FreeTensorGPULSTM(ITest):
                 return lstm_objective_inline(main_params, extra_params, state,
                                              sequence)
 
+            def schedule(s, target):
+                s.auto_use_lib(target)
+                s.auto_fission_fuse(target)
+                s.auto_reorder(target)
+                s.auto_parallelize(target)
+                s.auto_set_mem_type(target)
+                s.auto_unroll(target)
+
             self.comp_objective = ft.optimize(
                 lstm_objective,
-                schedule_callback=lambda s: s.auto_schedule(self.device))
+                schedule_callback=lambda s: schedule(s, self.device))
             self.comp_jacobian = ft_jacobian(
                 lstm_objective,
                 len(self.inputs),
-                schedule_callback=lambda s: s.auto_schedule(self.device))
+                schedule_callback=lambda s: schedule(s, self.device))
 
     def output(self):
         '''Returns calculation result.'''
