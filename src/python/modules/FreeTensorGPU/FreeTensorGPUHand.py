@@ -143,9 +143,11 @@ class FreeTensorGPUHand(ITest):
                         correspondences)
 
             def schedule(s, target):
+                s.auto_inline(target)
                 s.auto_use_lib(target)
                 s.auto_fission_fuse(target)
                 s.auto_reorder(target)
+                s.auto_mem_layout(target)
                 s.auto_parallelize(target)
                 s.auto_set_mem_type(target)
                 s.auto_unroll(target)
