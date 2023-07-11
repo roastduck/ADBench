@@ -5,26 +5,8 @@ import math
 import torch
 
 
-def logsumexp(x):
-    mx = torch.max(x)
-    emx = torch.exp(x - mx)
-    return torch.log(sum(emx)) + mx
-
-
-def logsumexpvec(x):
-    '''The same as "logsumexp" but calculates result for each row separately.'''
-
-    mx = torch.max(x, 1).values
-    lset = torch.logsumexp(torch.t(x) - mx, 0)
-    return torch.t(lset + mx)
-
-
 def log_gamma_distrib(a, p):
     return torch.special.multigammaln(a, p)
-
-
-def sqsum(x):
-    return sum(x**2)
 
 
 def log_wishart_prior(p, wishart_gamma, wishart_m, sum_qs, Qdiags, icf):
@@ -32,7 +14,7 @@ def log_wishart_prior(p, wishart_gamma, wishart_m, sum_qs, Qdiags, icf):
     k = icf.shape[0]
 
     out = torch.sum(
-        0.5 * wishart_gamma * wishart_gamma *
+        0.5 * wishart_gamma**2 *
         (torch.sum(Qdiags**2, dim=1) + torch.sum(icf[:, p:]**2, dim=1)) -
         wishart_m * sum_qs)
 
@@ -42,7 +24,9 @@ def log_wishart_prior(p, wishart_gamma, wishart_m, sum_qs, Qdiags, icf):
 
 def constructL(d, icf: torch.Tensor):
     i, j = torch.triu_indices(d, d, 1, device=icf.device)
-    result = torch.zeros((icf.shape[0], d, d), dtype=icf.dtype, device=icf.device)
+    result = torch.zeros((icf.shape[0], d, d),
+                         dtype=icf.dtype,
+                         device=icf.device)
     result[:, j, i] = icf[:, d:]
     return result
 
@@ -65,9 +49,9 @@ def gmm_objective(alphas, means, icf, x, wishart_gamma, wishart_m):
     Lxcentered = Qtimesx(Qdiags, Ls, xcentered)
     sqsum_Lxcentered = torch.sum(Lxcentered**2, 2)
     inner_term = alphas + sum_qs - 0.5 * sqsum_Lxcentered
-    lse = logsumexpvec(inner_term)
+    lse = torch.logsumexp(inner_term, dim=1)
     slse = torch.sum(lse)
 
     CONSTANT = -n * d * 0.5 * math.log(2 * math.pi)
-    return CONSTANT + slse - n * logsumexp(alphas) \
+    return CONSTANT + slse - n * torch.logsumexp(alphas, dim=0) \
         + log_wishart_prior(d, wishart_gamma, wishart_m, sum_qs, Qdiags, icf)
