@@ -3,22 +3,6 @@ import freetensor as ft
 
 
 @ft.inline
-def logsumexp(x):
-    mx = ft.reduce_max(x, axes=None, keepdims=False)
-    emx = ft.exp(x - mx)
-    return ft.ln(ft.reduce_sum(emx, axes=[0])) + mx
-
-
-@ft.inline
-def logsumexpvec(x):
-    '''The same as "logsumexp" but calculates result for each row separately.'''
-
-    mx = ft.reduce_max(x, axes=[1], keepdims=False)
-    lset = ft.logsumexp(ft.transpose(x) - mx, axis=0, keepdims=False)
-    return ft.transpose(lset + mx)
-
-
-@ft.inline
 def gammaln(x):
     assert ft.ndim(x) == 0
     assert ft.dtype(x) == "float64"
@@ -95,9 +79,9 @@ def gmm_objective_inline(alphas, means, icf, x, wishart_gamma, wishart_m):
     Lxcentered = Qtimesx(Qdiags, Ls, xcentered)
     sqsum_Lxcentered = ft.reduce_sum(ft.square(Lxcentered), axes=[2], keepdims=False)
     inner_term = alphas + sum_qs - 0.5 * sqsum_Lxcentered
-    lse = logsumexpvec(inner_term)
+    lse = ft.logsumexp(inner_term, keepdims=True)
     slse = ft.reduce_sum(lse, keepdims=False)
 
     CONSTANT = -n * d * 0.5 * math.log(2 * math.pi)
-    return CONSTANT + slse - n * logsumexp(alphas) \
+    return CONSTANT + slse - n * ft.logsumexp(alphas, keepdims=True) \
         + log_wishart_prior(d, wishart_gamma, wishart_m, sum_qs, Qdiags, icf)
