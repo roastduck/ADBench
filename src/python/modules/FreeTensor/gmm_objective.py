@@ -45,11 +45,8 @@ def constructL(d, icf):
 
     for i in range(d):
         Lparamidx = (2 * d - i) * (i + 1) // 2
-        nelems = d - i - 1
-        ret[:, i] = ft.concat([
-            ft.zeros((i + 1,), dtype = 'float64'),
-            icf[Lparamidx:(Lparamidx + nelems)]
-        ])
+        for j in range(ret.shape(0)):
+            ret[j, i] = 0 if j <= i else icf[Lparamidx + j - i - 1]
 
     return ret
 
