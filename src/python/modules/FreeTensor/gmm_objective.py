@@ -43,10 +43,14 @@ def log_wishart_prior(p, wishart_gamma, wishart_m, sum_qs, Qdiags, icf):
 def constructL(d, icf):
     ret = ft.empty((d, d), "float64")
 
+    #! no_deps: icf
     for i in range(d):
         Lparamidx = (2 * d - i) * (i + 1) // 2
         for j in range(ret.shape(0)):
-            ret[j, i] = 0 if j <= i else icf[Lparamidx + j - i - 1]
+            if j <= i:
+                ret[j, i] = 0
+            else:
+                ret[j, i] = icf[Lparamidx + j - i - 1]
 
     return ret
 
