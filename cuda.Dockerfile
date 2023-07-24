@@ -1,5 +1,5 @@
 # PyTorch version (torch==2.0.0) shoud be consistent with **/requirements-cuda.txt
-FROM freetensor:cuda-mkl-pytorch-dev-7eba08ac383cb9f79b9c4f6e854dbca181b6ea8b
+FROM freetensor:cuda-mkl-pytorch-dev-3237f8886f0e1478113dc9d434de5388de8fd68b
 
 # Install linux packages
 RUN apt-get update

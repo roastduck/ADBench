@@ -58,7 +58,9 @@ def constructL(d, icf):
 @ft.inline
 def Qtimesx(Qdiag, L, x):
 
-    f = ft.einsum('ijk,mik->mij', L, x)
+    x_t = ft.transpose(x, (1, 0, 2))
+    f_t = ft.einsum('ijk,imk->imj', L, x_t)
+    f = ft.transpose(f_t, (1, 0, 2))
     return Qdiag * x + f
 
 
