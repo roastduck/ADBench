@@ -12,6 +12,10 @@ from shared.BASparseMat import BASparseMat
 from shared.defs import BA_NCAMPARAMS
 from modules.PyTorchVmap.ba_objective import compute_reproj_err, compute_w_err
 
+# torch.vmap and torch.compile can't be used together:
+# https://github.com/pytorch/pytorch/issues/100320
+# We use vmap in this case
+
 
 def jac_reproj_err(cam, x, w, feat):
     return torch_jacobian(compute_reproj_err, (cam, x, w), (feat, ))

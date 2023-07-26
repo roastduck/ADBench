@@ -10,6 +10,11 @@ from shared.GMMData import GMMInput, GMMOutput
 from modules.PyTorchVmap.gmm_objective import gmm_objective
 
 
+gmm_objective_compiled = torch.compile(gmm_objective)
+
+#gmm_jacobian_compiled = torch.compile(lambda inputs, params: torch_jacobian(gmm_objective, inputs, params))
+# jacobian can't be compiled: RuntimeError: Cannot access data pointer of Tensor that doesn't have storage
+gmm_jacobian_compiled = lambda inputs, params: torch_jacobian(gmm_objective, inputs, params)
 
 class PyTorchVmapGMM(ITest):
     '''Test class for GMM differentiation by PyTorch.'''
@@ -39,14 +44,13 @@ class PyTorchVmapGMM(ITest):
         '''Calculates objective function many times.'''
 
         for i in range(times):
-            self.objective = gmm_objective(*self.inputs, *self.params)
+            self.objective = gmm_objective_compiled(*self.inputs, *self.params)
 
     def calculate_jacobian(self, times):
         '''Calculates objective function jacobian many times.'''
 
         for i in range(times):
-            self.objective, self.gradient = torch_jacobian(
-                gmm_objective,
+            self.objective, self.gradient = gmm_jacobian_compiled(
                 self.inputs,
                 self.params
             )
