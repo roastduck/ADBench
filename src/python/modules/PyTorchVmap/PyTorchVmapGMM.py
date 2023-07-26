@@ -10,7 +10,9 @@ from shared.GMMData import GMMInput, GMMOutput
 from modules.PyTorchVmap.gmm_objective import gmm_objective
 
 
-gmm_objective_compiled = torch.compile(gmm_objective)
+# If using torch.compile, some cases will crash
+#gmm_objective_compiled = torch.compile(gmm_objective)
+gmm_objective_compiled = gmm_objective
 
 #gmm_jacobian_compiled = torch.compile(lambda inputs, params: torch_jacobian(gmm_objective, inputs, params))
 # jacobian can't be compiled: RuntimeError: Cannot access data pointer of Tensor that doesn't have storage
