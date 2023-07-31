@@ -1,0 +1,458 @@
+[
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand1_t26_c100.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -7.568034364618515,
+                    -1.4431269999050294,
+                    -0.6140039423961261,
+                    -100.0,
+                    -100.0
+                ],
+                "runtime": 0.002644000109285116
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand2_t26_c192.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -8.11194765589869,
+                    1.0243826009591288,
+                    20.348271732485927,
+                    -192.0,
+                    -192.0
+                ],
+                "runtime": 0.0024590000975877047
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand3_t26_c200.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -27.973347853321773,
+                    -0.6003478908732927,
+                    6.9726625457148526,
+                    -200.0,
+                    -200.0
+                ],
+                "runtime": 0.002595999976620078
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand4_t26_c400.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -28.99741789594041,
+                    -1.8943935175603461,
+                    48.351616619327494,
+                    -400.0,
+                    -400.0
+                ],
+                "runtime": 0.002607000060379505
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand5_t26_c800.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -55.19344950845614,
+                    27.72436910493161,
+                    32.269882063409945,
+                    -800.0,
+                    -800.0
+                ],
+                "runtime": 0.002368000103160739
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand6_t26_c1600.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -42.83496689122663,
+                    -119.00290597309777,
+                    -2.067830538146552,
+                    -1600.0,
+                    -1600.0
+                ],
+                "runtime": 0.0023380001075565815
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand7_t26_c3200.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    297.24566221790934,
+                    -131.05853133399987,
+                    117.0593718936818,
+                    -3200.0,
+                    -3200.0
+                ],
+                "runtime": 0.0024170000106096268
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand8_t26_c6400.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -850.998161686613,
+                    74.6706923627205,
+                    35.14839705106077,
+                    -6400.0,
+                    -6400.0
+                ],
+                "runtime": 0.0023849999997764826
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand9_t26_c12800.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    44.100676612347,
+                    113.24095261110233,
+                    -376.9051070148503,
+                    -12800.0,
+                    -12800.0
+                ],
+                "runtime": 0.002623999956995249
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand10_t26_c25600.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    2580.610789394164,
+                    -578.1208044479929,
+                    -272.4928815327703,
+                    -25600.0,
+                    -25600.0
+                ],
+                "runtime": 0.0026970000471919775
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand11_t26_c51200.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -3671.2686431676198,
+                    -1597.8037742515573,
+                    3149.728962242626,
+                    -51200.0,
+                    -51200.0
+                ],
+                "runtime": 0.0027089999057352543
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_small/hand12_t26_c100000.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    187.8883572397781,
+                    -2574.8592246826056,
+                    3669.451002456958,
+                    -100000.0,
+                    -100000.0
+                ],
+                "runtime": 0.0028830000665038824
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand1_t26_c100.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -8.178476155915122,
+                    -0.2080911880973106,
+                    7.291219299139004,
+                    -100.0,
+                    -100.0
+                ],
+                "runtime": 0.03561500087380409
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand2_t26_c192.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -20.954954565343467,
+                    2.9323728828827758,
+                    -5.243883263166975,
+                    -192.0,
+                    -192.0
+                ],
+                "runtime": 0.03180599957704544
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand3_t26_c200.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -16.153412826600775,
+                    5.441542878116881,
+                    7.20597304342523,
+                    -200.0,
+                    -200.0
+                ],
+                "runtime": 0.03413299843668938
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand4_t26_c400.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -27.355136769970937,
+                    13.139104047327546,
+                    -15.385237137920866,
+                    -400.0,
+                    -400.0
+                ],
+                "runtime": 0.032680001109838486
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand5_t26_c800.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -12.240393699689504,
+                    0.3551020001789027,
+                    27.39964020620566,
+                    -800.0,
+                    -800.0
+                ],
+                "runtime": 0.032896000891923904
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand6_t26_c1600.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    47.74034085034047,
+                    -34.05462322782691,
+                    43.540319244515054,
+                    -1600.0,
+                    -1600.0
+                ],
+                "runtime": 0.03376400098204613
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand7_t26_c3200.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -226.49827493157247,
+                    -101.4651662716385,
+                    254.82937825671797,
+                    -3200.0,
+                    -3200.0
+                ],
+                "runtime": 0.03331800177693367
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand8_t26_c6400.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    18.167626661486878,
+                    -263.4290100687449,
+                    731.887948591905,
+                    -6400.0,
+                    -6400.0
+                ],
+                "runtime": 0.03217099979519844
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand9_t26_c12800.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -532.4377844431333,
+                    430.06653620848624,
+                    -485.5888231851894,
+                    -12800.0,
+                    -12800.0
+                ],
+                "runtime": 0.033789001405239105
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand10_t26_c25600.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -1757.268258620386,
+                    1000.2735660851959,
+                    -1094.751918323296,
+                    -25600.0,
+                    -25600.0
+                ],
+                "runtime": 0.03209000080823898
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand11_t26_c51200.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    1294.947910797603,
+                    -352.0732195006858,
+                    -1602.2934863196688,
+                    -51200.0,
+                    -51200.0
+                ],
+                "runtime": 0.03182300180196762
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "simple_big/hand12_t26_c100000.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "result": [
+                    -9907.65663915558,
+                    416.35380178175456,
+                    5690.1804105653655,
+                    -100000.0,
+                    -100000.0
+                ],
+                "runtime": 0.03191399946808815
+            }
+        ]
+    }
+]
