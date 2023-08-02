@@ -9,6 +9,11 @@ from shared.ITest import ITest
 from shared.GMMData import GMMInput, GMMOutput
 from modules.PyTorchVmap.gmm_objective import gmm_objective
 
+import os
+
+if 'OMP_NUM_THREADS' in os.environ:
+    torch.set_num_threads(int(os.environ['OMP_NUM_THREADS']))
+
 
 # If using torch.compile, some cases will crash
 #gmm_objective_compiled = torch.compile(gmm_objective)

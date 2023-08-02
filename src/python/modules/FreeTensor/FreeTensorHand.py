@@ -7,6 +7,12 @@ from shared.HandData import HandInput, HandOutput
 from modules.FreeTensor.hand_objective import hand_objective, \
                                            hand_objective_complicated
 
+import os
+
+is_parallel = True
+if 'OMP_NUM_THREADS' in os.environ and int(os.environ['OMP_NUM_THREADS']) == 1:
+    print("Testing in serial")
+    is_parallel = False
 
 
 class FreeTensorHand(ITest):
@@ -140,14 +146,16 @@ class FreeTensorHand(ITest):
                     correspondences)
 
         def schedule(s, target):
-            s.auto_inline(target)
-            s.auto_use_lib(target)
-            s.auto_fission_fuse(target)
-            s.auto_reorder(target)
-            s.auto_mem_layout(target)
-            s.auto_parallelize(target)
-            s.auto_set_mem_type(target)
-            s.auto_unroll(target)
+            global is_parallel
+            if is_parallel:
+                s.auto_inline(target)
+                s.auto_use_lib(target)
+                s.auto_fission_fuse(target)
+                s.auto_reorder(target)
+                s.auto_mem_layout(target)
+                s.auto_parallelize(target)
+                s.auto_set_mem_type(target)
+                s.auto_unroll(target)
 
         self.comp_objective = ft.optimize(
                 comp_objective,

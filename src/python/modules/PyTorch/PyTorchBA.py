@@ -12,6 +12,13 @@ from shared.BAData import BAInput, BAOutput
 from shared.BASparseMat import BASparseMat
 from modules.PyTorch.ba_objective import compute_reproj_err, compute_w_err
 
+import os
+
+if 'OMP_NUM_THREADS' in os.environ:
+    # I don't know why the output can't be printed through the main script.
+    # But it really runs
+    print("Testing with threads =", int(os.environ['OMP_NUM_THREADS']))
+    torch.set_num_threads(int(os.environ['OMP_NUM_THREADS']))
 
 
 class PyTorchBA(ITest):

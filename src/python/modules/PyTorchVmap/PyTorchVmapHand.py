@@ -11,6 +11,11 @@ from modules.PyTorchVmap.hand_objective import (hand_objective,
                                                 hand_objective_complicated,
                                                 hand_objective_complicated_d)
 
+import os
+
+if 'OMP_NUM_THREADS' in os.environ:
+    torch.set_num_threads(int(os.environ['OMP_NUM_THREADS']))
+
 # torch.vmap and torch.compile can't be used together:
 # https://github.com/pytorch/pytorch/issues/100320
 # We use vmap in this case

@@ -10,6 +10,11 @@ from shared.HandData import HandInput, HandOutput
 from modules.PyTorch.hand_objective import hand_objective, \
                                            hand_objective_complicated
 
+import os
+
+if 'OMP_NUM_THREADS' in os.environ:
+    print("Testing with threads =", int(os.environ['OMP_NUM_THREADS']))
+    torch.set_num_threads(int(os.environ['OMP_NUM_THREADS']))
 
 
 class PyTorchHand(ITest):

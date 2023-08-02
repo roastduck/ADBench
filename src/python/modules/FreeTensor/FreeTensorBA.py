@@ -9,6 +9,13 @@ from shared.BASparseMat import BASparseMat
 from modules.FreeTensor.ba_objective import compute_reproj_err, compute_w_err
 
 
+import os
+
+is_parallel = True
+if 'OMP_NUM_THREADS' in os.environ and int(os.environ['OMP_NUM_THREADS']) == 1:
+    print("Testing in serial")
+    is_parallel = False
+
 
 class FreeTensorBA(ITest):
     '''Test class for BA diferentiation by FreeTensor.'''
@@ -25,12 +32,14 @@ class FreeTensorBA(ITest):
         self.feats = to_ft_tensor(input.feats)
 
         def schedule(s, target):
-            s.auto_use_lib(target)
-            s.auto_fission_fuse(target)
-            s.auto_reorder(target)
-            s.auto_parallelize(target)
-            s.auto_set_mem_type(target)
-            s.auto_unroll(target)
+            global is_parallel
+            if is_parallel:
+                s.auto_use_lib(target)
+                s.auto_fission_fuse(target)
+                s.auto_reorder(target)
+                s.auto_parallelize(target)
+                s.auto_set_mem_type(target)
+                s.auto_unroll(target)
 
         @ft.optimize(schedule_callback=lambda s: schedule(s, ft.CPU()))
         def comp_objective(

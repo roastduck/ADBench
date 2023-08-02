@@ -6,6 +6,12 @@ from shared.ITest import ITest
 from shared.GMMData import GMMInput, GMMOutput
 from modules.FreeTensor.gmm_objective import gmm_objective_inline
 
+import os
+
+is_parallel = True
+if 'OMP_NUM_THREADS' in os.environ and int(os.environ['OMP_NUM_THREADS']) == 1:
+    print("Testing in serial")
+    is_parallel = False
 
 
 class FreeTensorGMM(ITest):
@@ -41,12 +47,14 @@ class FreeTensorGMM(ITest):
             return gmm_objective_inline(alphas, means, icf, x, wishart_gamma, wishart_m)
 
         def schedule(s, target):
-            s.auto_use_lib(target)
-            s.auto_fission_fuse(target)
-            s.auto_reorder(target)
-            s.auto_parallelize(target)
-            s.auto_set_mem_type(target)
-            s.auto_unroll(target)
+            global is_parallel
+            if is_parallel:
+                s.auto_use_lib(target)
+                s.auto_fission_fuse(target)
+                s.auto_reorder(target)
+                s.auto_parallelize(target)
+                s.auto_set_mem_type(target)
+                s.auto_unroll(target)
 
         self.comp_objective = ft.optimize(
             gmm_objective,

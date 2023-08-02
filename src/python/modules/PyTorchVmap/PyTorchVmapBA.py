@@ -12,6 +12,11 @@ from shared.BASparseMat import BASparseMat
 from shared.defs import BA_NCAMPARAMS
 from modules.PyTorchVmap.ba_objective import compute_reproj_err, compute_w_err
 
+import os
+
+if 'OMP_NUM_THREADS' in os.environ:
+    torch.set_num_threads(int(os.environ['OMP_NUM_THREADS']))
+
 # torch.vmap and torch.compile can't be used together:
 # https://github.com/pytorch/pytorch/issues/100320
 # We use vmap in this case

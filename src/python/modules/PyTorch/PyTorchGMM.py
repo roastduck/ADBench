@@ -9,6 +9,11 @@ from shared.ITest import ITest
 from shared.GMMData import GMMInput, GMMOutput
 from modules.PyTorch.gmm_objective import gmm_objective
 
+import os
+
+if 'OMP_NUM_THREADS' in os.environ:
+    print("Testing with threads =", int(os.environ['OMP_NUM_THREADS']))
+    torch.set_num_threads(int(os.environ['OMP_NUM_THREADS']))
 
 
 class PyTorchGMM(ITest):
