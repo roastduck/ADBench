@@ -1,6 +1,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT license.
 
+# !!!!!!!!
+# The timing method in this file is modified to be consistent with other experiments in our paper
+# Timing arguments passed from command line is ignored
+
 import time
 import sys
 import struct
@@ -16,59 +20,77 @@ from shared.output_utils import save_time_to_file
 
 measurable_time_not_achieved = -1
 
-def find_repeats_for_minimum_measurable_time(minimum_measurable_time, func):
-    total_time = 0
-    min_sample = sys.float_info.max
-
-    repeats = 1
-    # get platform C maxint & (maxint >> 1) + 1
-    max_reasonable_number_of_repetitions = 2 ** (struct.Struct('i').size * 8 - 2)
-    while True:
-        t1 = time.time()
-        func(repeats)
-        t2 = time.time()
-        # Time in seconds
-        current_run_time = t2 - t1
-        if current_run_time > minimum_measurable_time:
-            current_sample = current_run_time / repeats
-            min_sample = min(min_sample, current_sample)
-            total_time += current_run_time
-            break
-        repeats *= 2
-        # loop exit condition
-        if repeats > max_reasonable_number_of_repetitions:
-            # we recognize that we cannot reach the minimum measurable time.
-            repeats = measurable_time_not_achieved
-            break
-
-    result = namedtuple('result', 'repeats, sample, total_time')
-    return result(repeats = repeats, sample = min_sample, total_time = total_time)
+#def find_repeats_for_minimum_measurable_time(minimum_measurable_time, func):
+#    total_time = 0
+#    min_sample = sys.float_info.max
+#
+#    repeats = 1
+#    # get platform C maxint & (maxint >> 1) + 1
+#    max_reasonable_number_of_repetitions = 2 ** (struct.Struct('i').size * 8 - 2)
+#    while True:
+#        t1 = time.time()
+#        func(repeats)
+#        t2 = time.time()
+#        # Time in seconds
+#        current_run_time = t2 - t1
+#        if current_run_time > minimum_measurable_time:
+#            current_sample = current_run_time / repeats
+#            min_sample = min(min_sample, current_sample)
+#            total_time += current_run_time
+#            break
+#        repeats *= 2
+#        # loop exit condition
+#        if repeats > max_reasonable_number_of_repetitions:
+#            # we recognize that we cannot reach the minimum measurable time.
+#            repeats = measurable_time_not_achieved
+#            break
+#
+#    result = namedtuple('result', 'repeats, sample, total_time')
+#    return result(repeats = repeats, sample = min_sample, total_time = total_time)
 
 # Measures time according to the documentation.
 def measure_shortest_time(minimum_measurable_time, nruns, time_limit, func):
-        find_repeats_result = find_repeats_for_minimum_measurable_time(minimum_measurable_time, func)
+    # Warmup
+    for i in range(3):
+        func(1)
 
-        if find_repeats_result.repeats == measurable_time_not_achieved:
-            raise RuntimeError("It was not possible to reach the number of repeats sufficient to achieve the minimum measurable time.")
+    # Timing
+    total_time = 0.
+    timed_runs = 0
+    for i in range(1000):
+        t1 = time.time()
+        func(1)
+        t2 = time.time()
+        total_time += t2 - t1
+        timed_runs += 1
+        if total_time > 60:
+            break
 
-        repeats = find_repeats_result.repeats
-        min_sample = find_repeats_result.sample
+    return total_time / timed_runs
 
-        # Recount `time_limit` and `run` from 0, despite "find_repeats_for_minimum_measurable_time",
-        # because there might be lazy intializations
-        total_time = 0
-        run = 0
-        while (run < nruns) and (total_time < time_limit):
-            run += 1
-            t1 = time.time()
-            func(repeats)
-            t2 = time.time()
-            # Time in seconds
-            current_run_time = t2 - t1
-            min_sample = min(min_sample, current_run_time / repeats)
-            total_time += current_run_time
+    #find_repeats_result = find_repeats_for_minimum_measurable_time(minimum_measurable_time, func)
 
-        return min_sample
+    #if find_repeats_result.repeats == measurable_time_not_achieved:
+    #    raise RuntimeError("It was not possible to reach the number of repeats sufficient to achieve the minimum measurable time.")
+
+    #repeats = find_repeats_result.repeats
+    #min_sample = find_repeats_result.sample
+
+    ## Recount `time_limit` and `run` from 0, despite "find_repeats_for_minimum_measurable_time",
+    ## because there might be lazy intializations
+    #total_time = 0
+    #run = 0
+    #while (run < nruns) and (total_time < time_limit):
+    #    run += 1
+    #    t1 = time.time()
+    #    func(repeats)
+    #    t2 = time.time()
+    #    # Time in seconds
+    #    current_run_time = t2 - t1
+    #    min_sample = min(min_sample, current_run_time / repeats)
+    #    total_time += current_run_time
+
+    #return min_sample
 
 # Performs the entire benchmark process according to the documentation
 def run_benchmark(module_path, input_filepath, _input, output_prefix, minimum_measurable_time, nruns_F, nruns_J, time_limit):

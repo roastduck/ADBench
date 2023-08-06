@@ -15,6 +15,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         libssl-dev \
         # Required by matplotlib
         libpng-dev \
+        # Required by Tapenade
+        gfortran \
         && rm -rf /var/lib/apt/lists/*
 
 # Legacy libssl 1.0 requried by .NET runner
