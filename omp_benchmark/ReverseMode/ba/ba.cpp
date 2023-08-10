@@ -27,7 +27,7 @@ extern "C" {
 
 #include "omp.h"
 #include "ba.h"
-#define THREAD_NUM 256
+
 
 /* ===================================================================== */
 /*                                UTILS                                  */
@@ -211,7 +211,10 @@ void ba_objective(
     double* w_err
 )
 {
-    //#pragma omp parallel for
+
+    #ifdef OMP
+    #pragma omp parallel for
+    #endif
     for (int i = 0; i < p; i++)
     {
         int camIdx = obs[i * 2 + 0];
@@ -224,7 +227,9 @@ void ba_objective(
             &reproj_err[2 * i]
         );
     }
-    //#pragma omp parallel for
+    #ifdef OMP
+    #pragma omp parallel for
+    #endif
     for (int i = 0; i < p; i++)
     {
         compute_zach_weight_error(&w[i], &w_err[i]);
@@ -248,20 +253,28 @@ void dcompute_reproj_error(
     double *derr
 )
 {
+ 
+ 
     __enzyme_autodiff(compute_reproj_error,
             enzyme_dup, cam, dcam,
             enzyme_dup, X, dX,
             enzyme_dup, w, wb,
             enzyme_const, feat,
             enzyme_dupnoneed, err, derr);
-    //compute_reproj_error(cam,X,w,feat,err);
+
+ 
+ 
 }
 
 void dcompute_zach_weight_error(double const* w, double* dw, double* err, double* derr) {
+
+ 
     __enzyme_autodiff(compute_zach_weight_error,
             enzyme_dup, w, dw,
             enzyme_dupnoneed, err, derr);
-    //compute_zach_weight_error(w,err);
+
+ 
+ 
 }
 
 }

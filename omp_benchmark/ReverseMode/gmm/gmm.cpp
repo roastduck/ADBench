@@ -34,7 +34,6 @@
 #include <iostream>
 #include "omp.h"
 #define MAX_THREAD_NUM 256
-#define OMP2
 #include<chrono>
 extern "C" {
 #include "gmm.h"
@@ -169,6 +168,10 @@ void preprocess_qs(
 {
     int ik, id;
     int icf_sz = d * (d + 1) / 2;
+
+    #ifdef OMP
+    printf("using omp\n ");
+    #endif
     std::cout << "preprocess_qs---k:" << k << std::endl;
     for (ik = 0; ik < k; ik++)
     {
@@ -214,6 +217,40 @@ void Qtimesx(
 }
 
 
+void call_gmm_objective(
+    int d,
+    int k,
+    int n,
+    double const* __restrict alphas,
+    double const* __restrict means,
+    double const* __restrict icf,
+    double const* __restrict x,
+    Wishart wishart,
+    double* __restrict err
+)
+{
+    double* xcentered = (double*)calloc(n * d, sizeof(double));
+    double* Qxcentered = (double*)calloc(n * d, sizeof(double));
+    double* main_term = (double*)calloc(n * k, sizeof(double));
+    double* xcenteredb = (double*)calloc(n * d, sizeof(double));
+    double* Qxcenteredb = (double*)calloc(n * d, sizeof(double));
+    double* main_termb = (double*)calloc(n * k, sizeof(double));
+    double* Qdiags = (double*)calloc(d * k, sizeof(double));
+    double* sum_qs = (double*)calloc(k, sizeof(double));
+    double* temp_save = (double*)calloc(n, sizeof(double));
+    double* Qdiagsb = (double*)calloc(d * k, sizeof(double));
+    double* sum_qsb = (double*)calloc(k, sizeof(double));
+    double* temp_saveb = (double*)calloc(n, sizeof(double));
+    gmm_objective(d, k, n, alphas,means, icf,x,
+           wishart,
+           err, 
+           xcentered,
+           Qxcentered,
+           main_term, 
+           Qdiags,
+           sum_qs, 
+           temp_save);
+}
 
 void gmm_objective(
     int d,
@@ -238,7 +275,7 @@ void gmm_objective(
 
     // double* Qdiags = (double*)malloc(d * k * sizeof(double));
     // double* sum_qs = (double*)malloc(k * sizeof(double));
-    // #ifndef OMP2
+    // #ifndef omp
     // double* xcentered = (double*)malloc(d * sizeof(double));
     // double* Qxcentered = (double*)malloc(d * sizeof(double));
     // double* main_term = (double*)malloc(k * sizeof(double));
@@ -254,7 +291,7 @@ void gmm_objective(
 
     double slse = 0.;
     // double* temp_save = (double*)malloc(n * sizeof(double));
-    #ifdef OMP2
+    #ifdef OMP
     #pragma omp parallel for
     #endif
     for (int ix = 0; ix < n; ix++)
@@ -262,7 +299,7 @@ void gmm_objective(
         int dd = d;
         for (int ik = 0; ik < k; ik++)
         {
-            #ifndef OMP2
+            #ifndef OMP
             //只会更改xcentered和qxcentered，且不会读xcentered和qxcentered
             subtract(dd, &x[ix * dd], &means[ik * dd], &xcentered[0]);
             Qtimesx(dd, &Qdiags[ik * dd], &icf[ik * icf_sz + dd], &xcentered[0], &Qxcentered[0]);
@@ -279,13 +316,13 @@ void gmm_objective(
         // storing cmp for max of main_term
         // 2 x (0 and arbitrary) storing sub to exp
         // storing sum for use in log
-        #ifdef OMP2
+        #ifdef OMP
         temp_save[ix] += log_sum_exp(k, &main_term[ix * k + 0]);
         #else
         slse = slse + log_sum_exp(k, &main_term[0]);
         #endif
     }
-    #ifdef OMP2
+    #ifdef OMP
     for(int ix = 0; ix < n; ix++){
         slse += temp_save[ix];
     }

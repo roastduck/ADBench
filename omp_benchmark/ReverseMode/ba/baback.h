@@ -1,3 +1,5 @@
+
+
 #pragma once
 
 #include "../../json.hpp"
@@ -13,7 +15,7 @@
 #include "omp.h"
 #include <chrono>
 
-//#define OMP // 一般不用开
+
 float tdiff(struct timeval *start, struct timeval *end) {
   return (end->tv_sec-start->tv_sec) + 1e-6*(end->tv_usec-start->tv_usec);
 }
@@ -346,19 +348,15 @@ void calculate_reproj_error_jacobian_part(struct BAInput &input, struct BAOutput
             temp_save[i][2 * j + 1] = private_reproj_err_d_row[j];
             #endif
         }
-        #ifndef OMP
-        #ifdef INSERT
+        #ifndef INSERT
         result.J.insert_reproj_err_block(i, camIdx, ptIdx, reproj_err_d.data());
         #endif
-        #endif
     }
-    #ifdef OMP
+    #ifdef INSERT
     for (int i = 0; i < input.p; i++) {
         int camIdx = input.obs[2 * i + 0];
         int ptIdx = input.obs[2 * i + 1];
-        #ifdef INSERT
         result.J.insert_reproj_err_block(i, camIdx, ptIdx, temp_save[i].data());
-        #endif
     }
     #endif
     //auto end = std::chrono::high_resolution_clock::now();
@@ -390,20 +388,16 @@ void calculate_weight_error_jacobian_part(struct BAInput &input, struct BAOutput
                                 // (equals to 1.0 for derivative calculation)
 
         deriv_weight(&input.w[j], &wb, &err, &errb);
-        #ifndef OMP
-        #ifdef INSERT
+        #ifndef INSERT
         result.J.insert_w_err_block(j, wb);
-        #endif
         #else
         temp_save[j] = wb;
         #endif
     }
-    #ifdef OMP
     #ifdef INSERT
     for(int j = 0; j < input.p; j++){
         result.J.insert_w_err_block(j, temp_save[j]);
     }
-    #endif
     #endif
     //auto end = std::chrono::high_resolution_clock::now();
     //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -422,43 +416,55 @@ void calculate_jacobian(struct BAInput &input, struct BAOutput &result)
 }
 
 int main(const int argc, const char* argv[]) {
-    //std::string path = "/mnt/Data/git/Enzyme/apps/ADBench/data/ba/ba1_n49_m7776_p31843.txt";
 
-    std::vector<std::string> paths = {
-          "ba2_n21_m11315_p36455.txt",
-          "ba3_n161_m48126_p182072.txt",
-          "ba1_n49_m7776_p31843.txt",
-          "ba4_n372_m47423_p204472.txt",
-          "ba5_n257_m65132_p225911.txt",
-    };
+    std::string path = std::string(argv[1]);
+
+    std::cout << path << std::endl;
+    //exit(0);
+    // std::vector<std::string> paths = {
+    //       "ba2_n21_m11315_p36455.txt",
+    //       "ba3_n161_m48126_p182072.txt",
+    //       "ba1_n49_m7776_p31843.txt",
+    //       "ba4_n372_m47423_p204472.txt",
+    //       "ba5_n257_m65132_p225911.txt",
+    // };
+
     // std::vector<std::string> paths = {
     //     "ba13_n245_m198739_p1091386.txt"
     // };
+
+     std::vector<std::string> paths = {path } ;
+
     #ifdef OMP
+        std::string outputfile = "output/" +path + "_results_omp.json";
      #ifdef OBJECTIVE
-         std::ofstream jsonfile("results_objective.json", std::ofstream::trunc);
-     #else
-        std::ofstream jsonfile("results_omp.json", std::ofstream::trunc);
+          outputfile = "output/objective_" + path + "_results_omp.json";
     #endif
-    
+
     #else
-         #ifdef OBJECTIVE
-         std::ofstream jsonfile("results_objective_serial.json", std::ofstream::trunc);
-        #else
-        std::ofstream jsonfile("results.json", std::ofstream::trunc);
-        #endif
+        std::string outputfile = "output/" + path + "_results_serial.json";
     #endif
+
+
+
+    std::ofstream jsonfile(outputfile.c_str(), std::ofstream::trunc);
+
     json test_results;
 
     for (auto path : paths) {
       json test_suite;
       test_suite["name"] = path;
- 
+
+    int ntimes = 3;
     {
-    struct BAInput input1[10];
-    struct BAOutput result1[10];
+
+
+    struct BAInput*   input1 = new   struct BAInput  [ ntimes];
+    struct BAOutput* result1=  new   struct BAOutput  [ ntimes];;
+
     //预热，不算时间
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < ntimes; i++){
+
         //struct BAInput start_input;
         read_ba_instance("../../../data/ba/" + path, input1[i].n, input1[i].m, input1[i].p, input1[i].cams, input1[i].X, input1[i].w, input1[i].obs, input1[i].feats);
         result1[i] = BAOutput{
@@ -468,8 +474,24 @@ int main(const int argc, const char* argv[]) {
         };
         //calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(start_input, start_result);
     }
-    
-    calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(input1[0], result1[0]);
+
+    #ifdef OBJECTIVE
+        ba_objective(
+            input1[0].n,
+            input1[0].m,
+            input1[0].p,
+            input1[0].cams.data(),
+            input1[0].X.data(),
+            input1[0].w.data(),
+            input1[0].obs.data(),
+            input1[0].feats.data(),
+            result1[0].reproj_err.data(),
+            result1[0].w_err.data()
+        );
+    #else
+        calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(input1[0], result1[0]);
+    #endif
+
 
     struct BAInput input;
     read_ba_instance("../../../data/ba/" + path, input.n, input.m, input.p, input.cams, input.X, input.w, input.obs, input.feats);
@@ -479,82 +501,88 @@ int main(const int argc, const char* argv[]) {
         std::vector<double>(input.p),
         BASparseMat(input.n, input.m, input.p)
     };
-    
 
-    //BASparseMat(this->input.n, this->input.m, this->input.p)
-
-    /*
-    ba_objective(
-        input.n,
-        input.m,
-        input.p,
-        input.cams.data(),
-        input.X.data(),
-        input.w.data(),
-        input.obs.data(),
-        input.feats.data(),
-        result.reproj_err.data(),
-        result.w_err.data()
-    );
-
-    for(unsigned i=0; i<input.p; i++) {
-        printf("w_err[%d]=%f reproj_err[%d]=%f, reproj_err[%d]=%f\n", i, result.w_err[i], 2*i, result.reproj_err[2*i], 2*i+1, result.reproj_err[2*i+1]);
-    }
-    */
 
     {
       struct timeval start, end;
-      gettimeofday(&start, NULL);
-      //auto start = std::chrono::high_resolution_clock::now();
-      // 算10次，时间取平均数
-      for(int i = 1; i < 10; i++){
-        #ifdef OBJECTIVE
+
+      int i;
+      for(i = 0; i < 3; i++){
+
+    #ifdef OBJECTIVE
         ba_objective(
-        input1[i].n,
-        input1[i].m,
-        input1[i].p,
-        input1[i].cams.data(),
-        input1[i].X.data(),
-        input1[i].w.data(),
-        input1[i].obs.data(),
-        input1[i].feats.data(),
-        result1[i].reproj_err.data(),
-        result1[i].w_err.data());
-        #else
+            input1[i].n,
+            input1[i].m,
+            input1[i].p,
+            input1[i].cams.data(),
+            input1[i].X.data(),
+            input1[i].w.data(),
+            input1[i].obs.data(),
+            input1[i].feats.data(),
+            result1[i].reproj_err.data(),
+            result1[i].w_err.data()
+        );
+    #else
         calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(input1[i], result1[i]);
-        #endif
+    #endif
       }
-      #ifdef OBJECTIVE
+
+      double totaltime = 0.0;
+      for(i = 0; i < ntimes; i++){
+        gettimeofday(&start, NULL);
+    #ifdef OBJECTIVE
         ba_objective(
-        input.n,
-        input.m,
-        input.p,
-        input.cams.data(),
-        input.X.data(),
-        input.w.data(),
-        input.obs.data(),
-        input.feats.data(),
-        result.reproj_err.data(),
-        result.w_err.data());      
-      #else
-      calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(input, result);
-      #endif
-      gettimeofday(&end, NULL);
-      //auto end = std::chrono::high_resolution_clock::now();
-      //auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-      //std::cout << "Total Elapsed time: " << duration.count() << " milliseconds" << std::endl;
-      printf("Enzyme combined %0.6f\n", tdiff(&start, &end) / 10.0);
-      //printf("Enzyme combined %0.6f\n", (double)duration.count() / 10.0);
+            input1[i].n,
+            input1[i].m,
+            input1[i].p,
+            input1[i].cams.data(),
+            input1[i].X.data(),
+            input1[i].w.data(),
+            input1[i].obs.data(),
+            input1[i].feats.data(),
+            result1[i].reproj_err.data(),
+            result1[i].w_err.data()
+        );
+    #else
+        calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(input1[i], result1[i]);
+    #endif
+        gettimeofday(&end, NULL);
+        totaltime += tdiff(&start, &end);
+        if (totaltime > 60)
+            break;
+      }
+    #ifdef OBJECTIVE
+        ba_objective(
+            input1[i].n,
+            input1[i].m,
+            input1[i].p,
+            input1[i].cams.data(),
+            input1[i].X.data(),
+            input1[i].w.data(),
+            input1[i].obs.data(),
+            input1[i].feats.data(),
+            result1[i].reproj_err.data(),
+            result1[i].w_err.data()
+        );
+    #else
+        calculate_jacobian<dcompute_reproj_error, dcompute_zach_weight_error>(input1[i], result1[i]);
+    #endif
+
+
+
       json enzyme;
       enzyme["name"] = "Enzyme combined";
       enzyme["p"] = input.p;
-      enzyme["runtime"] = tdiff(&start, &end) / 10.0;
+      enzyme["runtime"] = totaltime / ((double)i);
       //enzyme["runtime"] = (double)duration.count() / 10000.0;
-      for(unsigned i=0; i<5; i++) {
-        printf("%f ", result.J.vals[i]);
+      #ifdef INSERT
+      for(unsigned i=0; i<result.J.vals.size(); i++) {
+        if (i<5)
+            printf("%f ", result.J.vals[i]);
         enzyme["result"].push_back(result.J.vals[i]);
       }
-      printf("\n");
+      #endif
+      //printf("\n");
       test_suite["tools"].push_back(enzyme);
     }
 
@@ -566,3 +594,4 @@ int main(const int argc, const char* argv[]) {
    }
    jsonfile << std::setw(4) << test_results;
 }
+

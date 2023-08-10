@@ -1,5 +1,4 @@
 #pragma once
-#define OMP
 #include "../../json.hpp"
 #include "../mshared/defs.h"
 #include <vector>
@@ -47,6 +46,17 @@ extern "C" {
         alphasb, const double *means, double *meansb, const double *icf,
         double *icfb, const double *x, Wishart wishart, double *err, double *
         errb);
+        void call_gmm_objective(
+    int d,
+    int k,
+    int n,
+    double const* __restrict alphas,
+    double const* __restrict means,
+    double const* __restrict icf,
+    double const* __restrict x,
+    Wishart wishart,
+    double* __restrict err
+);
 }
 
 void read_gmm_instance(const string& fn,
@@ -158,6 +168,8 @@ void calculate_jacobian(struct GMMInput &input, struct GMMOutput &result)
         &errb
     );
 }
+ 
+
 
 int main(const int argc, const char* argv[]) {
     printf("starting main\n");
@@ -170,11 +182,29 @@ int main(const int argc, const char* argv[]) {
     getTests(paths, "../../../data/gmm/1k", "1k/");
     getTests(paths, "../../../data/gmm/10k", "10k/");
     
-    std::ofstream jsonfile("results.json", std::ofstream::trunc);
+    #ifdef OMP
+     #ifdef OBJECTIVE
+         std::ofstream jsonfile("results_objective.json", std::ofstream::trunc);
+     #else
+        std::ofstream jsonfile("results_omp.json", std::ofstream::trunc);
+    #endif
+
+    #else
+        #ifdef OBJECTIVE
+         std::ofstream jsonfile("results_objective_serial.json", std::ofstream::trunc);
+        #else
+        std::ofstream jsonfile("results.json", std::ofstream::trunc);
+        #endif
+    #endif
+
+
     json test_results;
 
     for (auto path : paths) {
+
+         #ifndef OBJECTIVE
     	if (path == "10k/gmm_d128_K200.txt" || path == "10k/gmm_d128_K100.txt" || path == "10k/gmm_d64_K200.txt" || path == "10k/gmm_d128_K50.txt" || path == "10k/gmm_d64_K100.txt") continue;
+        #endif
         printf("starting path %s\n", path.c_str());
       json test_suite;
       test_suite["name"] = path;
@@ -240,19 +270,32 @@ int main(const int argc, const char* argv[]) {
     // }
 
     // }
-
+    const int ntimes = 100;
     {
     #ifdef OMP
-    struct GMMInput input1[10];
-    struct GMMOutput result1[10];
+    struct GMMInput input1[ntimes];
+    struct GMMOutput result1[ntimes];
     //预热，不算时间
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < ntimes; i++){
         //struct BAInput start_input;
         read_gmm_instance("../../../data/gmm/" + path, &input1[i].d, &input1[i].k, &input1[i].n, input1[i].alphas, input1[i].means, input1[i].icf, input1[i].x, input1[i].wishart, params.replicate_point);
         int Jcols = (input1[i].k * (input1[i].d + 1) * (input1[i].d + 2)) / 2;
         result1[i] = GMMOutput{ 0, std::vector<double>(Jcols) };
     }
-    calculate_jacobian<dgmm_objective>(input1[0], result1[0]);
+        #ifdef OBJECTIVE
+         call_gmm_objective(
+            input1[0].d,
+            input1[0].k,
+            input1[0].n,
+            input1[0].alphas.data(),
+            input1[0].means.data(),
+            input1[0].icf.data(),
+            input1[0].x.data(),
+            input1[0].wishart,
+            &result1[0].objective);
+        #else
+        calculate_jacobian<dgmm_objective>(input1[0], result1[0]);
+        #endif 
     #endif
 
     struct GMMInput input;
@@ -267,20 +310,50 @@ int main(const int argc, const char* argv[]) {
       struct timeval start, end;
       gettimeofday(&start, NULL);
       #ifdef OMP
-      for(int i = 1; i < 10; i++){
+      for(int i = 1; i < ntimes; i++){
+        #ifdef OBJECTIVE
+         call_gmm_objective(
+            input1[i].d,
+            input1[i].k,
+            input1[i].n,
+            input1[i].alphas.data(),
+            input1[i].means.data(),
+            input1[i].icf.data(),
+            input1[i].x.data(),
+            input1[i].wishart,
+             &result1[i].objective);
+        #else
         calculate_jacobian<dgmm_objective>(input1[i], result1[i]);
+        #endif 
+        
       }
       #endif
-      calculate_jacobian<dgmm_objective>(input, result);
+        #ifdef OBJECTIVE
+         call_gmm_objective(
+            input.d,
+            input.k,
+            input.n,
+            input.alphas.data(),
+            input.means.data(),
+            input.icf.data(),
+            input.x.data(),
+            input.wishart,
+             &result.objective);         
+        #else
+         calculate_jacobian<dgmm_objective>(input, result);
+        #endif 
+     
       gettimeofday(&end, NULL);
       json enzyme;
       enzyme["name"] = "Enzyme combined";
       #ifdef OMP
-      enzyme["runtime"] = tdiff(&start, &end) / 10.0;
+      enzyme["runtime"] = tdiff(&start, &end) / ntimes;
       #else
       enzyme["runtime"] = tdiff(&start, &end);
       #endif
-      for (unsigned i = result.gradient.size() - 5;
+
+      enzyme["obejective"].push_back(result.objective);
+      for (unsigned i = 0;
            i < result.gradient.size(); i++) {
         printf("%f ", result.gradient[i]);
         enzyme["result"].push_back(result.gradient[i]);
