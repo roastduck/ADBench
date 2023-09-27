@@ -1,9 +1,0 @@
-set -ex
-echo "starting"
-cd ReverseMode/ba 
-sh ba.sh
-cd ../gmm
-sh gmm.sh
-cd ../hand
-sh hand.sh
-echo "finished"
