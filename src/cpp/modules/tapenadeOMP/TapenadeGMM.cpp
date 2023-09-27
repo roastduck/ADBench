@@ -11,7 +11,7 @@ void TapenadeGMM::prepare(GMMInput&& input) {
 }
 
 GMMOutput TapenadeGMM::output() { return result; }
-
+#include <unistd.h>
 void TapenadeGMM::calculate_objective(int times) {
     for (int i = 0; i < times; i++) {
         gmm_objective(&input.d, &input.k, &input.n, input.alphas.data(),
@@ -21,6 +21,13 @@ void TapenadeGMM::calculate_objective(int times) {
 }
 
 void TapenadeGMM::calculate_jacobian(int times) {
+
+    #ifdef OBONLY
+	// for breakdown experiment
+	// do not calculate jacobian
+        sleep(1);
+        return;
+    #endif
     double* alphas_gradient_part = result.gradient.data();
     double* means_gradient_part = result.gradient.data() + input.alphas.size();
     double* icf_gradient_part =
@@ -33,15 +40,15 @@ void TapenadeGMM::calculate_jacobian(int times) {
 
         double errb = 1.0;  // stores dY
                             // (equals to 1.0 for gradient calculation)
-
-        gmm_objective_b(&input.d, &input.k, &input.n, input.alphas.data(),
+	//
+	// TODO: The omp version for calculating jacobian has potential problems.
+	// 	 Use orignial serial version instead.
+	//
+        gmm_objective_b_c(input.d, input.k, input.n, input.alphas.data(),
                         alphas_gradient_part, input.means.data(),
                         means_gradient_part, input.icf.data(),
-                        icf_gradient_part, input.x.data(), &input.wishart, &tmp,
+                        icf_gradient_part, input.x.data(), input.wishart, &tmp,
                         &errb);
-        gmm_objective(&input.d, &input.k, &input.n, input.alphas.data(),
-                      input.means.data(), input.icf.data(), input.x.data(),
-                      &input.wishart, &result.objective);
     }
 }
 

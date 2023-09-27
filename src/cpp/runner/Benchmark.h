@@ -22,12 +22,12 @@ using std::chrono::high_resolution_clock;
 
 struct DefaultParameters {};
 
- //Reads input_file into Input struct. replicate_point flag duplicates one vector over all input data.
+ //Reads input_file into Input struct. replicate_point flag duplicates one vector over all input data. 
  //Templated function "read_input_data" is deleted to cause a link error if a corresponding template specialization is not implemented.
 template<class Input, class Parameters>
 Input read_input_data(const std::string& input_file, const Parameters& params) = delete;
 
-//Template of a pointer to a function which is a member of the ITest class and takes a single argument of int type.
+//Template of a pointer to a function which is a member of the ITest class and takes a single argument of int type. 
 template <class Input, class Output>
 using test_member_function = void (ITest<Input, Output>::*) (int);
 
@@ -97,11 +97,10 @@ duration<double> measure_shortest_time(const duration<double> minimum_measurable
 
     auto repeats = find_repeats_result.repeats;
     auto min_sample = find_repeats_result.sample;
+    auto total_time = find_repeats_result.total_time;
 
-    // Recount `time_limit` and `run` from 0, despite "find_repeats_for_minimum_measurable_time",
-    // because there might be lazy intializations
-    auto total_time = duration<double>(0s);
-    for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)
+    // "run" begins from 1 because a first run already done by "find_repeats_for_minimum_measurable_time" function
+    for (auto run = 1; (run < nruns) && (total_time < time_limit); run++)
     {
         auto t1 = high_resolution_clock::now();
         call_member_function(test, func, repeats);
@@ -113,6 +112,42 @@ duration<double> measure_shortest_time(const duration<double> minimum_measurable
     }
 
     return min_sample;
+}
+
+template<class Input, class Output>
+duration<double> measure_average_time(const duration<double> minimum_measurable_time, const int nruns,
+                                       const duration<double> time_limit, ITest<Input, Output>& test,
+                                       const test_member_function<Input, Output> func)
+{
+    auto find_repeats_result = find_repeats_for_minimum_measurable_time(minimum_measurable_time, test, func);
+
+    if (find_repeats_result.repeats == measurable_time_not_achieved)
+    {
+        throw runtime_error("It was not possible to reach the number of repeats sufficient to achieve the minimum measurable time.");
+    }
+
+    auto repeats = find_repeats_result.repeats;
+
+    // Recount `time_limit` and `run` from 0, despite "find_repeats_for_minimum_measurable_time",
+    // because there might be lazy intializations
+    auto total_time = duration<double>(0s);
+
+    call_member_function(test, func, 3);
+    int cnt = 0;
+    // printf("starting test, time_limit = %.2f\t max run = %d\n",time_limit,nruns);
+    for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)
+    {
+        auto t1 = high_resolution_clock::now();
+        call_member_function(test, func, repeats);
+        auto t2 = high_resolution_clock::now();
+        // Time in seconds
+        const auto current_run_time = t2 - t1;
+        total_time += current_run_time;
+        // printf("total time = %.8f\n",total_time);
+        cnt++;
+    }
+
+    return (total_time / (double)(cnt * repeats));
 }
 
 //Templated function "save_output_to_file" is deleted to cause a link error if a corresponding template specialization is not implemented.
@@ -131,10 +166,10 @@ void run_benchmark(const char* module_path, const std::string& input_filepath, c
     test->prepare(std::move(inputs));
 
     const auto objective_time =
-        measure_shortest_time(minimum_measurable_time, nruns_F, time_limit, *test, &ITest<Input, Output>::calculate_objective);
+        measure_average_time(minimum_measurable_time, nruns_F, time_limit, *test, &ITest<Input, Output>::calculate_objective);
 
     const auto derivative_time =
-        measure_shortest_time(minimum_measurable_time, nruns_J, time_limit, *test, &ITest<Input, Output>::calculate_jacobian);
+        measure_average_time(minimum_measurable_time, nruns_J, time_limit, *test, &ITest<Input, Output>::calculate_jacobian);
 
     const auto output = test->output();
 

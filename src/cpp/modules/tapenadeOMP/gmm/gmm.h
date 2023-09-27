@@ -27,6 +27,7 @@ extern "C" {
 // x: d*n points
 // wishart: wishart distribution parameters
 // err: 1 output
+
 void gmm_objective(int* d, int* k, int* n, double const* alphas,
                    double const* means, double const* icf, double const* x,
                    Wishart* wishart, double* err);
