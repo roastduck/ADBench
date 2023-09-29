@@ -11,7 +11,6 @@ void TapenadeGMM::prepare(GMMInput&& input) {
 }
 
 GMMOutput TapenadeGMM::output() { return result; }
-#include <unistd.h>
 void TapenadeGMM::calculate_objective(int times) {
     for (int i = 0; i < times; i++) {
         gmm_objective(&input.d, &input.k, &input.n, input.alphas.data(),

@@ -22,12 +22,12 @@ using std::chrono::high_resolution_clock;
 
 struct DefaultParameters {};
 
- //Reads input_file into Input struct. replicate_point flag duplicates one vector over all input data. 
+ //Reads input_file into Input struct. replicate_point flag duplicates one vector over all input data.
  //Templated function "read_input_data" is deleted to cause a link error if a corresponding template specialization is not implemented.
 template<class Input, class Parameters>
 Input read_input_data(const std::string& input_file, const Parameters& params) = delete;
 
-//Template of a pointer to a function which is a member of the ITest class and takes a single argument of int type. 
+//Template of a pointer to a function which is a member of the ITest class and takes a single argument of int type.
 template <class Input, class Output>
 using test_member_function = void (ITest<Input, Output>::*) (int);
 
