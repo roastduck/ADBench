@@ -10,8 +10,8 @@ set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -O2 -fopenmp")
 
 
 target_sources("TapenadeOMP" PRIVATE "${CMAKE_SOURCE_DIR}/src/cpp/shared/utils.cpp")
-target_sources("TapenadeOMP" PRIVATE "ADFirstAidKit/adStack.c")
-target_sources("TapenadeOMP" PRIVATE "ADFirstAidKit/adOMP.c")
+target_sources("TapenadeOMP" PRIVATE "tapenade/ADFirstAidKit/adStack.c")
+target_sources("TapenadeOMP" PRIVATE "tapenade/ADFirstAidKit/adOMP.c")
 
 target_sources("TapenadeOMP" PRIVATE "gmm/f_tapenade_omp.f90")
 target_sources("TapenadeOMP" PRIVATE "gmm/gmm_b.c")
