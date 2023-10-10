@@ -123,7 +123,8 @@ duration<double> measure_average_time(const duration<double> minimum_measurable_
     auto total_time = duration<double>(0s);
 
     // Warmups
-    call_member_function(test, func, 3);
+    for (int i = 0; i < 3; i++) 
+    	call_member_function(test, func, 1);
 
     // Timing
     for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)

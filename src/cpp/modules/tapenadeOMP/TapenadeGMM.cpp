@@ -21,12 +21,6 @@ void TapenadeGMM::calculate_objective(int times) {
 
 void TapenadeGMM::calculate_jacobian(int times) {
 
-    #ifdef OBONLY
-	// for breakdown experiment
-	// do not calculate jacobian
-        sleep(1);
-        return;
-    #endif
     double* alphas_gradient_part = result.gradient.data();
     double* means_gradient_part = result.gradient.data() + input.alphas.size();
     double* icf_gradient_part =

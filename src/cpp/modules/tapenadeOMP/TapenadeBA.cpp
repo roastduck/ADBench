@@ -54,20 +54,6 @@ void TapenadeBA::calculate_objective(int times)
     for (int i = 0; i < times; i++)
     {
         int camssize = input.cams.size();
-        // ba_objectivefortran(
-        //     &input.n,
-        //     &input.m,
-        //     &input.p,
-        //     &camssize,
-        //     input.cams.data(),
-        //     input.X.data(),
-        //     input.w.data(),
-        //     input.obs.data(),
-        //     input.feats.data(),
-        //     result.reproj_err.data(),
-        //     result.w_err.data()
-        // );
-        //printf("compute time\n");
         ba_objective(
             input.n,
             input.m,
@@ -96,32 +82,30 @@ void TapenadeBA::calculate_jacobian(int times)
     }
 }
 
-
 extern "C"   void compute_reproj_error_b(const double *cam, double *camb, const double *X, 
         double *Xb, const double *w, double *wb, const double *feat, double *
         err, double *errb);
 void TapenadeBA::calculate_reproj_error_jacobian_part()
 {
-
-#ifdef OMP
-
-#endif
-
-
-    double* cam_gradient_part = reproj_err_d_row.data();
-    double* x_gradient_part = reproj_err_d_row.data() + BA_NCAMPARAMS;
-    double* weight_gradient_part = reproj_err_d_row.data() + BA_NCAMPARAMS + 3;
-
-#ifdef OMP
-    #pragma omp parallel for 
-#endif
+ 
+    double **tmp = (double**)malloc( sizeof(double*)*input.p);
+    for (int i = 0 ;i < input.p; ++i){
+        tmp[i]= (double*)malloc(sizeof(double)*(BA_NCAMPARAMS+3+1));
+    }
+ 
+    double*  cam_gradient_part;
+    double*  x_gradient_part ;
+    double*  weight_gradient_part;
+    cam_gradient_part = reproj_err_d_row.data();
+    x_gradient_part = reproj_err_d_row.data() + BA_NCAMPARAMS;
+    weight_gradient_part = reproj_err_d_row.data() + BA_NCAMPARAMS + 3;
+    #pragma omp parallel for  private(cam_gradient_part,x_gradient_part,weight_gradient_part)
     for (int i = 0; i < input.p; i++)
     {
-#ifdef OMP
-    cam_gradient_part = reproj_err_d_row.data() + i * (BA_NCAMPARAMS + 3);
-    x_gradient_part = cam_gradient_part + BA_NCAMPARAMS;
-    weight_gradient_part = cam_gradient_part + BA_NCAMPARAMS + 3;    
-#endif
+
+	cam_gradient_part = tmp[i];
+	x_gradient_part =  cam_gradient_part + BA_NCAMPARAMS ;
+	weight_gradient_part = x_gradient_part + 3;       
 
         double errb[2];     // stores dY
                             // (i-th element equals to 1.0 for calculating i-th jacobian row)
@@ -179,17 +163,12 @@ void TapenadeBA::calculate_reproj_error_jacobian_part()
 extern "C" void compute_zach_weight_error_b(const double *w, double *wb, double *err, 
         double *errb);
 
-#include<omp.h>
 void TapenadeBA::calculate_weight_error_jacobian_part()
 {
 
-#ifdef OMP
     #pragma omp parallel for 
-#endif
     for (int j = 0; j < input.p; j++)
     {
-        //int id = omp_get_thread_num();
-        //printf("id=%d\n",id);
         double err = 0.0;       // stores fictive result
                                 // (Tapenade doesn't calculate an original function in reverse mode)
 
