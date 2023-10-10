@@ -1,0 +1,31 @@
+4c4
+< #include <adStack.h>
+---
+> 
+26c26
+< #include "ba.h"
+---
+> #include "ba_b.h"
+127c127,128
+<         *ptb = 0.0;
+---
+> 	for (i = 0; i < 3; i++)
+> 	    ptb[i] = 0.0;
+166c167,168
+<           *ptb = 0.0;
+---
+> 	  for (i = 0; i < 3; i++)
+> 	      ptb[i] = 0.0;
+266a269,272
+>     for (ii1 = 0; ii1 < BA_NCAMPARAMS; ii1++)
+>         camb[ii1] = 0.0;
+>     for (ii1 = 0; ii1 < 3; ii1++)
+>         Xb[ii1] = 0.0;
+273c279
+<     pushReal8(*proj);
+---
+>     pushReal8Array(proj, 2);
+285c291
+<     popReal8(proj);
+---
+>     popReal8Array(proj, 2);

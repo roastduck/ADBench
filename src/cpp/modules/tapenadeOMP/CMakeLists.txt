@@ -2,6 +2,8 @@ project("ADBench_TapenadeOMP" C CXX Fortran)
 
 add_library("TapenadeOMP" MODULE)
 
+add_subdirectory("ba")
+
 set(COMMON_FLAGS "${COMMON_FLAGS} -lpthread -fopenmp -O2")
 
 set(CMAKE_C_FLAGS "${COMMON_FLAGS}")
