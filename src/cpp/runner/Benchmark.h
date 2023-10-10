@@ -119,35 +119,25 @@ duration<double> measure_average_time(const duration<double> minimum_measurable_
                                        const duration<double> time_limit, ITest<Input, Output>& test,
                                        const test_member_function<Input, Output> func)
 {
-    auto find_repeats_result = find_repeats_for_minimum_measurable_time(minimum_measurable_time, test, func);
 
-    if (find_repeats_result.repeats == measurable_time_not_achieved)
-    {
-        throw runtime_error("It was not possible to reach the number of repeats sufficient to achieve the minimum measurable time.");
-    }
-
-    auto repeats = find_repeats_result.repeats;
-
-    // Recount `time_limit` and `run` from 0, despite "find_repeats_for_minimum_measurable_time",
-    // because there might be lazy intializations
     auto total_time = duration<double>(0s);
 
+    // Warmups
     call_member_function(test, func, 3);
-    int cnt = 0;
-    // printf("starting test, time_limit = %.2f\t max run = %d\n",time_limit,nruns);
+
+    // Timing
     for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)
     {
         auto t1 = high_resolution_clock::now();
-        call_member_function(test, func, repeats);
+        call_member_function(test, func, 1);
         auto t2 = high_resolution_clock::now();
         // Time in seconds
         const auto current_run_time = t2 - t1;
         total_time += current_run_time;
-        // printf("total time = %.8f\n",total_time);
-        cnt++;
+        // printf("total time = %.8f\n", total_time);
     }
 
-    return (total_time / (double)(cnt * repeats));
+    return (total_time / (double)(nruns));
 }
 
 //Templated function "save_output_to_file" is deleted to cause a link error if a corresponding template specialization is not implemented.
