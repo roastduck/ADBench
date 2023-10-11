@@ -126,6 +126,7 @@ duration<double> measure_average_time(const duration<double> minimum_measurable_
     for (int i = 0; i < 3; i++) 
     	call_member_function(test, func, 1);
 
+    int actual_nruns = 0;
     // Timing
     for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)
     {
@@ -135,10 +136,11 @@ duration<double> measure_average_time(const duration<double> minimum_measurable_
         // Time in seconds
         const auto current_run_time = t2 - t1;
         total_time += current_run_time;
+	actual_nruns ++;
         // printf("total time = %.8f\n", total_time);
     }
 
-    return (total_time / (double)(nruns));
+    return (total_time / (double)(actual_nruns));
 }
 
 //Templated function "save_output_to_file" is deleted to cause a link error if a corresponding template specialization is not implemented.

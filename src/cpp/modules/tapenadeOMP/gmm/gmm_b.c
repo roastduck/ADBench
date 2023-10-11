@@ -295,14 +295,10 @@ void preprocess_qs_b(int d, int k, const double *icf, double *icfb, double *
             popReal8(&q);
             
             qb = exp(q)*Qdiagsb[ik*d+id];
-            //printf("qb=%.2f\t",qb);
             Qdiagsb[ik*d + id] = 0.0;
             qb = qb + sum_qsb[ik];
-            // printf("sum_qsb=%.2f\t",sum_qsb[ik]);
-            // exit(0);
             
             icfb[ik*icf_sz + id] = icfb[ik*icf_sz + id] + qb;
-            //printf("%.8f\n",icfb[ik*icf_sz + id]);
         }
         sum_qsb[ik] = 0.0;
         
