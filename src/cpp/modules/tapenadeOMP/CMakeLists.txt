@@ -15,8 +15,7 @@ target_sources("TapenadeOMP" PRIVATE "${CMAKE_SOURCE_DIR}/src/cpp/shared/utils.c
 target_sources("TapenadeOMP" PRIVATE "tapenade/ADFirstAidKit/adStack.c")
 target_sources("TapenadeOMP" PRIVATE "tapenade/ADFirstAidKit/adOMP.c")
 
-target_sources("TapenadeOMP" PRIVATE "gmm/f_tapenade_omp.f90")
-target_sources("TapenadeOMP" PRIVATE "gmm/gmm_b.c")
+target_sources("TapenadeOMP" PRIVATE "gmm/f_tapenade_b_omp.f90")
 target_sources("TapenadeOMP" PUBLIC "TapenadeGMM.cpp")
 
 target_sources("TapenadeOMP" PRIVATE "ba/ba.c")

@@ -35,12 +35,11 @@ void TapenadeGMM::calculate_jacobian(int times) {
                             // (equals to 1.0 for gradient calculation)
 	//
 	// TODO: The omp version for calculating jacobian has potential problems.
-	// 	 Use orignial serial version instead.
 	//
-        gmm_objective_b_c(input.d, input.k, input.n, input.alphas.data(),
+        gmm_objective_b(&input.d, &input.k, &input.n, input.alphas.data(),
                         alphas_gradient_part, input.means.data(),
                         means_gradient_part, input.icf.data(),
-                        icf_gradient_part, input.x.data(), input.wishart, &tmp,
+                        icf_gradient_part, input.x.data(), &input.wishart, &tmp,
                         &errb);
     }
 }
