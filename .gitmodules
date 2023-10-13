@@ -7,3 +7,6 @@
 [submodule "submodules/adol-c"]
 	path = submodules/adol-c
 	url = https://gitlab.com/adol-c/adol-c
+[submodule "src/cpp/modules/tapenadeOMP/tapenade"]
+	path = src/cpp/modules/tapenadeOMP/tapenade
+	url = https://gitlab.inria.fr/tapenade/tapenade.git

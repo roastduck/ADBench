@@ -97,11 +97,10 @@ duration<double> measure_shortest_time(const duration<double> minimum_measurable
 
     auto repeats = find_repeats_result.repeats;
     auto min_sample = find_repeats_result.sample;
+    auto total_time = find_repeats_result.total_time;
 
-    // Recount `time_limit` and `run` from 0, despite "find_repeats_for_minimum_measurable_time",
-    // because there might be lazy intializations
-    auto total_time = duration<double>(0s);
-    for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)
+    // "run" begins from 1 because a first run already done by "find_repeats_for_minimum_measurable_time" function
+    for (auto run = 1; (run < nruns) && (total_time < time_limit); run++)
     {
         auto t1 = high_resolution_clock::now();
         call_member_function(test, func, repeats);
@@ -113,6 +112,35 @@ duration<double> measure_shortest_time(const duration<double> minimum_measurable
     }
 
     return min_sample;
+}
+
+template<class Input, class Output>
+duration<double> measure_average_time(const duration<double> minimum_measurable_time, const int nruns,
+                                       const duration<double> time_limit, ITest<Input, Output>& test,
+                                       const test_member_function<Input, Output> func)
+{
+
+    auto total_time = duration<double>(0s);
+
+    // Warmups
+    for (int i = 0; i < 3; i++) 
+    	call_member_function(test, func, 1);
+
+    int actual_nruns = 0;
+    // Timing
+    for (auto run = 0; (run < nruns) && (total_time < time_limit); run++)
+    {
+        auto t1 = high_resolution_clock::now();
+        call_member_function(test, func, 1);
+        auto t2 = high_resolution_clock::now();
+        // Time in seconds
+        const auto current_run_time = t2 - t1;
+        total_time += current_run_time;
+	actual_nruns ++;
+        // printf("total time = %.8f\n", total_time);
+    }
+
+    return (total_time / (double)(actual_nruns));
 }
 
 //Templated function "save_output_to_file" is deleted to cause a link error if a corresponding template specialization is not implemented.
@@ -131,10 +159,10 @@ void run_benchmark(const char* module_path, const std::string& input_filepath, c
     test->prepare(std::move(inputs));
 
     const auto objective_time =
-        measure_shortest_time(minimum_measurable_time, nruns_F, time_limit, *test, &ITest<Input, Output>::calculate_objective);
+        measure_average_time(minimum_measurable_time, nruns_F, time_limit, *test, &ITest<Input, Output>::calculate_objective);
 
     const auto derivative_time =
-        measure_shortest_time(minimum_measurable_time, nruns_J, time_limit, *test, &ITest<Input, Output>::calculate_jacobian);
+        measure_average_time(minimum_measurable_time, nruns_J, time_limit, *test, &ITest<Input, Output>::calculate_jacobian);
 
     const auto output = test->output();
 
