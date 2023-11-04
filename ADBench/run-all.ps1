@@ -80,7 +80,8 @@ param(# Which build to test.
 
       # GMM sizes to try. Must be a subset of @("1k", "10k", "2.5M")
       # 2.5M currently is not supported
-      [string[]]$gmm_sizes = @("1k", "10k"),
+      [string[]]$gmm_sizes = @("10k"),
+      #[string[]]$gmm_sizes = @("1k", "10k"),
 
       # Hand problem sizes to try. Must be a subset of @("small", "big")
       [string[]]$hand_sizes = @("small", "big"),
