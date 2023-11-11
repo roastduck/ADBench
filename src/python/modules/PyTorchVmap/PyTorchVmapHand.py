@@ -86,8 +86,9 @@ class PyTorchVmapHand(ITest):
     def calculate_objective(self, times):
         '''Calculates objective function many times.'''
 
-        for i in range(times):
-            self.objective = self.objective_function(self.inputs, *self.params)
+        with torch.no_grad():
+            for i in range(times):
+                self.objective = self.objective_function(self.inputs, *self.params)
 
     def calculate_jacobian(self, times):
         '''Calculates objective function jacobian many times.'''

@@ -67,19 +67,20 @@ class PyTorchGPUBA(ITest):
     def calculate_objective(self, times):
         '''Calculates objective function many times.'''
 
-        reproj_error = torch.empty((self.p, 2), dtype = torch.float64, device = 'cuda')
-        for i in range(times):
-            for j in range(self.p):
-                reproj_error[j] = compute_reproj_err(
-                    self.cams[self.obs[j, 0]],
-                    self.x[self.obs[j, 1]],
-                    self.w[j],
-                    self.feats[j]
-                )
+        with torch.no_grad():
+            reproj_error = torch.empty((self.p, 2), dtype = torch.float64, device = 'cuda')
+            for i in range(times):
+                for j in range(self.p):
+                    reproj_error[j] = compute_reproj_err(
+                        self.cams[self.obs[j, 0]],
+                        self.x[self.obs[j, 1]],
+                        self.w[j],
+                        self.feats[j]
+                    )
 
-                self.w_err[j] = compute_w_err(self.w[j])
+                    self.w_err[j] = compute_w_err(self.w[j])
 
-            self.reproj_error = reproj_error.flatten()
+                self.reproj_error = reproj_error.flatten()
         torch.cuda.synchronize()
 
     def calculate_jacobian(self, times):

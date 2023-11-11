@@ -88,11 +88,12 @@ class PyTorchGPUHand(ITest):
     def calculate_objective(self, times):
         '''Calculates objective function many times.'''
 
-        for i in range(times):
-            self.objective = self.objective_function(
-                self.inputs,
-                *self.params
-            )
+        with torch.no_grad():
+            for i in range(times):
+                self.objective = self.objective_function(
+                    self.inputs,
+                    *self.params
+                )
         torch.cuda.synchronize()
 
     def calculate_jacobian(self, times):

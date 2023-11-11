@@ -78,19 +78,20 @@ class PyTorchVmapBA(ITest):
     def calculate_objective(self, times):
         '''Calculates objective function many times.'''
 
-        for i in range(times):
-            self.reproj_error = batched_reproj_err(
-                torch.index_select(self.cams, 0, self.obs[:, 0]),
-                torch.index_select(self.x, 0, self.obs[:, 1]),
-                self.w,
-                self.feats,
-            )
-            self.w_err = batched_w_err(self.w)
+        with torch.no_grad():
+            for i in range(times):
+                self.reproj_error = batched_reproj_err(
+                    torch.index_select(self.cams, 0, self.obs[:, 0]),
+                    torch.index_select(self.x, 0, self.obs[:, 1]),
+                    self.w,
+                    self.feats,
+                )
+                self.w_err = batched_w_err(self.w)
 
-            assert self.reproj_error.shape == (self.p, 2)
-            assert self.w_err.shape == (self.p, )
+                assert self.reproj_error.shape == (self.p, 2)
+                assert self.w_err.shape == (self.p, )
 
-            self.reproj_error = self.reproj_error.flatten()
+                self.reproj_error = self.reproj_error.flatten()
 
     def calculate_jacobian(self, times):
         ''' Calculates objective function jacobian many times.'''
