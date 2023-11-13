@@ -42,13 +42,13 @@ param(# Which build to test.
       [double]$minimum_measurable_time = 0.5,
 
       # Maximum number of times to run the function for timing
-      [int]$nruns_f=10,
+      [int]$nruns_f=1000,
 
       # Maximum number of times to run the jacobian for timing
-      [int]$nruns_J=10,
+      [int]$nruns_J=1000,
 
       # How many seconds to wait before we believe we have accurate timings
-      [double]$time_limit=10,
+      [double]$time_limit=60,
 
       # Kill the test after this many seconds
       [double]$timeout=900,
