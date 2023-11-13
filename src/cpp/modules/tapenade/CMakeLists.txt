@@ -1,5 +1,8 @@
 project("ADBench_Tapenade" CXX)
 
+set(CMAKE_C_FLAGS_RELEASE "-O2")
+set(CMAKE_CXX_FLAGS_RELEASE "-O2")
+
 add_library("Tapenade" MODULE)
 target_sources("Tapenade" PRIVATE "${CMAKE_SOURCE_DIR}/src/cpp/shared/utils.cpp")
 target_sources("Tapenade" PRIVATE "utils/adBuffer.c")
