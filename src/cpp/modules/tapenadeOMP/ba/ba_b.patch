@@ -1,7 +1,7 @@
 4c4
 < #include <adStack.h>
 ---
-> 
+> #include "../tapenade/ADFirstAidKit/adStack.h"
 26c26
 < #include "ba.h"
 ---
