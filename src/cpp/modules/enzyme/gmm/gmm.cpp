@@ -138,11 +138,6 @@ void preprocess_qs(int d, int k, double const* icf, double* sum_qs,
                    double* Qdiags) {
     int ik, id;
     int icf_sz = d * (d + 1) / 2;
-
-#ifdef OMP
-    printf("using omp\n ");
-#endif
-    std::cout << "preprocess_qs---k:" << k << std::endl;
     for (ik = 0; ik < k; ik++) {
         sum_qs[ik] = 0.;
         for (id = 0; id < d; id++) {
@@ -205,25 +200,9 @@ void gmm_objective(int d, int k, int n, double const* __restrict alphas,
 #define int int64_t
     const double CONSTANT = -n * d * 0.5 * log(2 * PI);
     int icf_sz = d * (d + 1) / 2;
-
-    // double* Qdiags = (double*)malloc(d * k * sizeof(double));
-    // double* sum_qs = (double*)malloc(k * sizeof(double));
-    // #ifndef omp
-    // double* xcentered = (double*)malloc(d * sizeof(double));
-    // double* Qxcentered = (double*)malloc(d * sizeof(double));
-    // double* main_term = (double*)malloc(k * sizeof(double));
-    // #else
-    // double* xcentered = (double*)malloc(n * d * sizeof(double));
-    // double* Qxcentered = (double*)malloc(n * d * sizeof(double));
-    // double* main_term = (double*)malloc(n * k * sizeof(double));
-    // #endif
-
     preprocess_qs(d, k, icf, &sum_qs[0], &Qdiags[0]);
 
-    // auto start = std::chrono::high_resolution_clock::now();
-
     double slse = 0.;
-// double* temp_save = (double*)malloc(n * sizeof(double));
 #ifdef OMP
 #pragma omp parallel for
 #endif
@@ -262,11 +241,6 @@ void gmm_objective(int d, int k, int n, double const* __restrict alphas,
         slse += temp_save[ix];
     }
 #endif
-    // free(temp_save);
-    ////auto end = std::chrono::high_resolution_clock::now();
-    // auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end
-    // - start); std::cout << "Elapsed time: " << duration.count() << "
-    // milliseconds" << std::endl;
 
     // storing cmp of alphas
     double lse_alphas = log_sum_exp(k, alphas);
@@ -274,11 +248,6 @@ void gmm_objective(int d, int k, int n, double const* __restrict alphas,
     *err = CONSTANT + slse - n * lse_alphas +
            log_wishart_prior(d, k, wishart, &sum_qs[0], &Qdiags[0], icf);
 
-// free(Qdiags);
-// free(sum_qs);
-//  free(xcentered);
-//  free(Qxcentered);
-//  free(main_term);
 #undef int
 }
 
