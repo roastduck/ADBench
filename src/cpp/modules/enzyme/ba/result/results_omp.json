@@ -1,0 +1,102 @@
+[
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "ba2_n21_m11315_p36455.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "p": 36455,
+                "result": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "runtime": 0.008402999490499496
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "ba3_n161_m48126_p182072.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "p": 182072,
+                "result": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "runtime": 0.0417340025305748
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "ba1_n49_m7776_p31843.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "p": 31843,
+                "result": [
+                    -19.42391647220623,
+                    604.7802846625027,
+                    -3.061598342041031,
+                    -15.049628170340545,
+                    6.392457556226442
+                ],
+                "runtime": 0.006459499709308147
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "ba4_n372_m47423_p204472.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "p": 204472,
+                "result": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "runtime": 0.048218000680208206
+            }
+        ]
+    },
+    {
+        "batch-size": 1,
+        "llvm-version": "12.0.1 ",
+        "mode": "ReverseMode",
+        "name": "ba5_n257_m65132_p225911.txt",
+        "tools": [
+            {
+                "name": "Enzyme combined",
+                "p": 225911,
+                "result": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "runtime": 0.053022999316453934
+            }
+        ]
+    }
+]
