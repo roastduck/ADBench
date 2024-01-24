@@ -21,12 +21,11 @@
  *         for generating but the result can be slightly different.
  */
 
-#include "../adbench/ba.h"
 
 extern "C" {
 
-#include "omp.h"
-#include "ba.h"
+#include <math.h>
+#include "../../../shared/defs.h"
 #define THREAD_NUM 256
 
 /* ===================================================================== */

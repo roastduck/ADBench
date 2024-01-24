@@ -8,9 +8,10 @@
 #include "../../shared/BAData.h"
 #include "../../shared/defs.h"
 
-#include "ba/ba.h"
-#include "ba/ba_b.h"
-
+#include <stdlib.h>
+#include <float.h>
+#include <string>
+#include <string.h>
 #include <vector>
 
 class EnzymeBA : public ITest<BAInput, BAOutput>

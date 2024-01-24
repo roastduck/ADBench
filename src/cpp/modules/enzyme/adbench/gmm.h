@@ -59,80 +59,6 @@ extern "C" {
 );
 }
 
-void read_gmm_instance(const string& fn,
-    int* d, int* k, int* n,
-    vector<double>& alphas,
-    vector<double>& means,
-    vector<double>& icf,
-    vector<double>& x,
-    Wishart& wishart,
-    bool replicate_point)
-{
-    FILE* fid = fopen(fn.c_str(), "r");
-
-    if (!fid) {
-        printf("could not open file: %s\n", fn.c_str());
-        exit(1);
-    }
-
-    fscanf(fid, "%i %i %i", d, k, n);
-
-    int d_ = *d, k_ = *k, n_ = *n;
-
-    int icf_sz = d_ * (d_ + 1) / 2;
-    alphas.resize(k_);
-    means.resize(d_ * k_);
-    icf.resize(icf_sz * k_);
-    x.resize(d_ * n_);
-
-    for (int i = 0; i < k_; i++)
-    {
-        fscanf(fid, "%lf", &alphas[i]);
-    }
-
-    for (int i = 0; i < k_; i++)
-    {
-        for (int j = 0; j < d_; j++)
-        {
-            fscanf(fid, "%lf", &means[i * d_ + j]);
-        }
-    }
-
-    for (int i = 0; i < k_; i++)
-    {
-        for (int j = 0; j < icf_sz; j++)
-        {
-            fscanf(fid, "%lf", &icf[i * icf_sz + j]);
-        }
-    }
-
-    if (replicate_point)
-    {
-        for (int j = 0; j < d_; j++)
-        {
-            fscanf(fid, "%lf", &x[j]);
-        }
-        for (int i = 0; i < n_; i++)
-        {
-            memcpy(&x[i * d_], &x[0], d_ * sizeof(double));
-        }
-    }
-    else
-    {
-        for (int i = 0; i < n_; i++)
-        {
-            for (int j = 0; j < d_; j++)
-            {
-                fscanf(fid, "%lf", &x[i * d_ + j]);
-            }
-        }
-    }
-
-    fscanf(fid, "%lf %i", &(wishart.gamma), &(wishart.m));
-
-    fclose(fid);
-}
-
 typedef void(*deriv_t)(int d, int k, int n, const double *alphas, double *alphasb, const double *means, double *meansb, const double *icf,
             double *icfb, const double *x, Wishart wishart, double *err, double *errb);
 
@@ -168,7 +94,7 @@ void calculate_jacobian(struct GMMInput &input, struct GMMOutput &result)
         &errb
     );
 }
- 
+
 
 
 int main(const int argc, const char* argv[]) {
@@ -186,7 +112,7 @@ int main(const int argc, const char* argv[]) {
       paths  = { "10k/gmm_d20_K200.txt" };
 
     #endif
-    
+
     #ifdef OMP
      #ifdef OBJECTIVE
          std::ofstream jsonfile("results_objective_omp.json", std::ofstream::trunc);
@@ -207,9 +133,9 @@ int main(const int argc, const char* argv[]) {
 
     for (auto path : paths) {
 
- 
+
     	if (path == "10k/gmm_d128_K200.txt" || path == "10k/gmm_d128_K100.txt" || path == "10k/gmm_d64_K200.txt" || path == "10k/gmm_d128_K50.txt" || path == "10k/gmm_d64_K100.txt") continue;
-  
+
         printf("starting path %s\n", path.c_str());
       json test_suite;
       test_suite["name"] = path;
@@ -277,7 +203,7 @@ int main(const int argc, const char* argv[]) {
     // }
     const int ntimes = 100;
     {
- 
+
     struct GMMInput input1[ntimes];
     struct GMMOutput result1[ntimes];
     //预热，不算时间
@@ -288,7 +214,7 @@ int main(const int argc, const char* argv[]) {
         result1[i] = GMMOutput{ 0, std::vector<double>(Jcols) };
     }
 
- 
+
 
 
 
@@ -303,7 +229,7 @@ int main(const int argc, const char* argv[]) {
         struct GMMOutput result1warpup[1];
         result1warpup[0] = GMMOutput{ 0, std::vector<double>(Jcols) };
         read_gmm_instance("../../../data/gmm/" + path, &input1warm[0].d, &input1warm[0].k, &input1warm[0].n,
-        input1warm[0].alphas, input1warm[0].means, input1warm[0].icf, input1warm[0].x, input1warm[0].wishart, 
+        input1warm[0].alphas, input1warm[0].means, input1warm[0].icf, input1warm[0].x, input1warm[0].wishart,
         params.replicate_point);
         for (int i = 0; i < 3; ++i){
         #ifdef OBJECTIVE
@@ -319,7 +245,7 @@ int main(const int argc, const char* argv[]) {
                 &result1warpup[0].objective);
             #else
             calculate_jacobian<dgmm_objective>(input1warm[0], result1warpup[0]);
-        #endif 
+        #endif
         }
 
     }
@@ -329,7 +255,7 @@ int main(const int argc, const char* argv[]) {
       struct timeval start, end;
       int cnt = 0;
       float alltime = 0.0;
-       
+
       for(int i = 0; i < ntimes; i++){
         auto start = std::chrono::high_resolution_clock::now();
         #ifdef OBJECTIVE
@@ -345,7 +271,7 @@ int main(const int argc, const char* argv[]) {
              &result1[i].objective);
         #else
         calculate_jacobian<dgmm_objective>(input1[i], result1[i]);
-        #endif 
+        #endif
         auto end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
         //std::cout << duration.count() << std::endl;
@@ -354,7 +280,7 @@ int main(const int argc, const char* argv[]) {
         if (alltime > 100)
             break;
       }
-       
+
         call_gmm_objective(
         input.d,
         input.k,
@@ -364,16 +290,16 @@ int main(const int argc, const char* argv[]) {
         input.icf.data(),
         input.x.data(),
         input.wishart,
-            &result.objective);         
+            &result.objective);
         calculate_jacobian<dgmm_objective>(input, result);
 
-     
-      
+
+
       json enzyme;
       enzyme["name"] = "Enzyme combined";
- 
+
       enzyme["runtime"] =  alltime / ((float)cnt);
- 
+
 
       enzyme["obejective"].push_back(result.objective);
       for (unsigned i = 0;

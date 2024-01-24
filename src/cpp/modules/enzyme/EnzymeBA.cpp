@@ -15,23 +15,15 @@ void EnzymeBA::prepare(BAInput&& input)
         BASparseMat(this->input.n, this->input.m, this->input.p)
     };
 
-    reproj_err_d = std::vector<double>(2 * n_new_cols * input.p);
+    reproj_err_d = std::vector<double>(2 * n_new_cols);
     zach_weight_error_d = std::vector<double>(input.p);
-    reproj_err_d_row = std::vector<double>(n_new_cols * input.p);
+    reproj_err_d_row = std::vector<double>(n_new_cols);
 }
 
 
 
 BAOutput EnzymeBA::output()
 {
-    for (int i = 0; i < input.p; ++i) {
-        int camIdx = input.obs[2 * i + 0];
-        int ptIdx = input.obs[2 * i + 1];
-        result.J.insert_reproj_err_block(i, camIdx, ptIdx, reproj_err_d.data() + i * 2 * n_new_cols);
-    }
-    for (int i = 0; i < input.p; ++i) {
-        result.J.insert_w_err_block(i, zach_weight_error_d[i]);
-    }
     return result;
 }
 
@@ -71,7 +63,6 @@ void EnzymeBA::calculate_objective(int times)
 }
 
 
-
 void EnzymeBA::calculate_jacobian(int times)
 {
 
@@ -84,7 +75,7 @@ void EnzymeBA::calculate_jacobian(int times)
 }
 
 extern "C" {
-    void compute_reproj_error_b(
+    void dcompute_reproj_error(
         const double *cam,
         double *camb,
         const double *X,
@@ -106,6 +97,7 @@ void EnzymeBA::calculate_reproj_error_jacobian_part()
     #endif
     double err[2];      // stores fictive result
                         // (Tapenade doesn't calculate an original function in reverse mode)
+
     #ifndef OMP
     double* cam_gradient_part = reproj_err_d_row.data();
     double* x_gradient_part = reproj_err_d_row.data() + BA_NCAMPARAMS;
@@ -131,7 +123,7 @@ void EnzymeBA::calculate_reproj_error_jacobian_part()
         for(auto& a : reproj_err_d_row) a = 0.0;
         #endif
 
-        compute_reproj_error_b(
+        dcompute_reproj_error(
             &input.cams[camIdx * BA_NCAMPARAMS],
             #ifndef OMP
             cam_gradient_part,
@@ -173,7 +165,7 @@ void EnzymeBA::calculate_reproj_error_jacobian_part()
         // calculate second row
         errb[0] = 0.0;
         errb[1] = 1.0;
-        compute_reproj_error_b(
+        dcompute_reproj_error(
             &input.cams[camIdx * BA_NCAMPARAMS],
             #ifndef OMP
             cam_gradient_part,
@@ -222,7 +214,7 @@ void EnzymeBA::calculate_reproj_error_jacobian_part()
 
 
 extern "C" {
-    void compute_zach_weight_error_b(
+    void dcompute_zach_weight_error(
         const double *w,
         double *wb,
         double *err,
@@ -248,7 +240,7 @@ void EnzymeBA::calculate_weight_error_jacobian_part()
         double errb = 1.0;      // stores dY
                                 // (equals to 1.0 for derivative calculation)
 
-        compute_zach_weight_error_b(&input.w[j], &wb, &err, &errb);
+        dcompute_zach_weight_error(&input.w[j], &wb, &err, &errb);
         #ifndef OMP
         result.J.insert_w_err_block(j, wb);
         #else
