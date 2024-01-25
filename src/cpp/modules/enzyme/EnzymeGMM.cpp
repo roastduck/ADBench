@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-#include "TapenadeGMM.h"
+#include "EnzymeGMM.h"
 
 // This function must be called before any other function.
-void TapenadeGMM::prepare(GMMInput&& input)
+void EnzymeGMM::prepare(GMMInput&& input)
 {
     this->input = input;
     int Jcols = (this->input.k * (this->input.d + 1) * (this->input.d + 2)) / 2;
@@ -13,18 +13,47 @@ void TapenadeGMM::prepare(GMMInput&& input)
 
 
 
-GMMOutput TapenadeGMM::output()
+GMMOutput EnzymeGMM::output()
 {
     return result;
 }
 
+extern "C" {
+    void dgmm_objective(
+        int d,
+        int k,
+        int n,
+        const double *alphas,
+        double *alphasb,
+        const double *means,
+        double *meansb,
+        const double *icf,
+        double *icfb,
+        const double *x,
+        Wishart wishart,
+        double *err,
+        double *errb
+    );
+
+    void call_gmm_objective(
+        int d,
+        int k,
+        int n,
+        double const* __restrict alphas,
+        double const* __restrict means,
+        double const* __restrict icf,
+        double const* __restrict x,
+        Wishart wishart,
+        double* __restrict err
+    );
+}
 
 
-void TapenadeGMM::calculate_objective(int times)
+void EnzymeGMM::calculate_objective(int times)
 {
     for (int i = 0; i < times; i++)
     {
-        gmm_objective(
+        call_gmm_objective(
             input.d,
             input.k,
             input.n,
@@ -40,7 +69,7 @@ void TapenadeGMM::calculate_objective(int times)
 
 
 
-void TapenadeGMM::calculate_jacobian(int times)
+void EnzymeGMM::calculate_jacobian(int times)
 {
     double* alphas_gradient_part = result.gradient.data();
     double* means_gradient_part = result.gradient.data() + input.alphas.size();
@@ -52,12 +81,12 @@ void TapenadeGMM::calculate_jacobian(int times)
     for (int i = 0; i < times; i++)
     {
         double tmp = 0.0;       // stores fictive result
-                                // (Tapenade doesn't calculate an original function in reverse mode)
+                                // (Enzyme doesn't calculate an original function in reverse mode)
 
         double errb = 1.0;      // stores dY
                                 // (equals to 1.0 for gradient calculation)
 
-        gmm_objective_b(
+        dgmm_objective(
             input.d,
             input.k,
             input.n,
@@ -79,5 +108,5 @@ void TapenadeGMM::calculate_jacobian(int times)
 
 extern "C" DLL_PUBLIC ITest<GMMInput, GMMOutput>* get_gmm_test()
 {
-    return new TapenadeGMM();
+    return new EnzymeGMM();
 }

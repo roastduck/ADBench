@@ -8,7 +8,7 @@
 
 #include <vector>
 
-class TapenadeGMM : public ITest<GMMInput, GMMOutput>
+class EnzymeGMM : public ITest<GMMInput, GMMOutput>
 {
 private:
     GMMInput input;
@@ -23,6 +23,6 @@ public:
     virtual void calculate_jacobian(int times) override;
     virtual GMMOutput output() override;
 
-    ~TapenadeGMM() {}
+    ~EnzymeGMM() {}
 };
 

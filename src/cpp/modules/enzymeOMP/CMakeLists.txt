@@ -16,3 +16,6 @@ target_sources("EnzymeOMP" PRIVATE "${CMAKE_SOURCE_DIR}/src/cpp/shared/utils.cpp
 
 target_sources("EnzymeOMP" PRIVATE "../enzyme/ba/ba.cpp")
 target_sources("EnzymeOMP" PUBLIC "../enzyme/EnzymeBA.cpp")
+
+target_sources("EnzymeOMP" PRIVATE "../enzyme/gmm/gmm.cpp")
+target_sources("EnzymeOMP" PUBLIC "../enzyme/EnzymeGMM.cpp")

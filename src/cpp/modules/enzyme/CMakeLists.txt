@@ -16,3 +16,6 @@ target_sources("Enzyme" PRIVATE "${CMAKE_SOURCE_DIR}/src/cpp/shared/utils.cpp")
 
 target_sources("Enzyme" PRIVATE "ba/ba.cpp")
 target_sources("Enzyme" PUBLIC "EnzymeBA.cpp")
+
+target_sources("Enzyme" PRIVATE "gmm/gmm.cpp")
+target_sources("Enzyme" PUBLIC "EnzymeGMM.cpp")
