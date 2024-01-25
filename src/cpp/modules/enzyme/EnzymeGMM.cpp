@@ -7,6 +7,7 @@
 void EnzymeGMM::prepare(GMMInput&& input)
 {
     this->input = input;
+    this->input_t = input;
     int Jcols = (this->input.k * (this->input.d + 1) * (this->input.d + 2)) / 2;
     result = { 0, std::vector<double>(Jcols) };
 }
@@ -68,7 +69,6 @@ void EnzymeGMM::calculate_objective(int times)
 }
 
 
-
 void EnzymeGMM::calculate_jacobian(int times)
 {
     double* alphas_gradient_part = result.gradient.data();
@@ -102,6 +102,21 @@ void EnzymeGMM::calculate_jacobian(int times)
             &tmp,
             &errb
         );
+
+        /*
+        int cnt = 0, id = 0;
+        for (int i = 0; i < input.x.size(); i++) {
+            if (abs(input.x[i] - input_t.x[i]) > 1e-3) {
+                cnt ++;
+                id = i;
+            }
+        }
+        std::cout << cnt << ' ' << input.x[id] << ' ' << input_t.x[id] << '\n';
+        */
+#ifdef OMP
+        // for unknown reason, input.x will be modified by enzyme
+        input.x = input_t.x;
+#endif
     }
 }
 

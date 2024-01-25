@@ -3,19 +3,18 @@
 
 #pragma once
 
-#include "../../shared/ITest.h"
-#include "../../shared/GMMData.h"
-
 #include <vector>
 
-class EnzymeGMM : public ITest<GMMInput, GMMOutput>
-{
-private:
-    GMMInput input;
+#include "../../shared/GMMData.h"
+#include "../../shared/ITest.h"
+
+class EnzymeGMM : public ITest<GMMInput, GMMOutput> {
+   private:
+    GMMInput input, input_t;
     GMMOutput result;
     std::vector<double> state;
 
-public:
+   public:
     // This function must be called before any other function.
     virtual void prepare(GMMInput&& input) override;
 
