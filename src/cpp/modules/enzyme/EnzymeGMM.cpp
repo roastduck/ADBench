@@ -80,6 +80,7 @@ void EnzymeGMM::calculate_jacobian(int times)
 
     for (int i = 0; i < times; i++)
     {
+        std::fill(result.gradient.begin(), result.gradient.end(), 0);
         double tmp = 0.0;       // stores fictive result
                                 // (Enzyme doesn't calculate an original function in reverse mode)
 
