@@ -26,6 +26,9 @@ private:
 
     // buffer for reprojection error jacobian block row holding
     std::vector<double> reproj_err_d_row;
+#ifdef OMP
+    std::vector<std::vector<double>> temp_save;
+#endif
 
 public:
     // This function must be called before any other function.
