@@ -168,6 +168,7 @@ void Qtimesx(int d, double const* Qdiag,
     }
 }
 
+
 void gmm_objective(int d, int k, int n, double const* __restrict alphas,
                    double const* __restrict means, double const* __restrict icf,
                    double const* __restrict x, Wishart wishart,
@@ -237,17 +238,17 @@ void call_gmm_objective(int d, int k, int n, double const* __restrict alphas,
     double* xcentered = (double*)calloc(n * d, sizeof(double));
     double* Qxcentered = (double*)calloc(n * d, sizeof(double));
     double* main_term = (double*)calloc(n * k, sizeof(double));
-    double* xcenteredb = (double*)calloc(n * d, sizeof(double));
-    double* Qxcenteredb = (double*)calloc(n * d, sizeof(double));
-    double* main_termb = (double*)calloc(n * k, sizeof(double));
     double* Qdiags = (double*)calloc(d * k, sizeof(double));
     double* sum_qs = (double*)calloc(k, sizeof(double));
     double* temp_save = (double*)calloc(n, sizeof(double));
-    double* Qdiagsb = (double*)calloc(d * k, sizeof(double));
-    double* sum_qsb = (double*)calloc(k, sizeof(double));
-    double* temp_saveb = (double*)calloc(n, sizeof(double));
     gmm_objective(d, k, n, alphas, means, icf, x, wishart, err, xcentered,
                   Qxcentered, main_term, Qdiags, sum_qs, temp_save);
+    free(xcentered);
+    free(Qxcentered);
+    free(main_term);
+    free(Qdiags);
+    free(sum_qs);
+    free(temp_save);
 }
 
 extern int enzyme_const;
